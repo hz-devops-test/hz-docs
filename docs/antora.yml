@@ -1,9 +1,9 @@
 name: hazelcast
 title: Platform
 # Version in the URL
-version: '5.3-snapshot'
+version: '5.3-beta-1-snapshot'
 # Version in the version selector (we display only the latest major.minor version)
-display_version: '5.3-SNAPSHOT'
+display_version: '5.3-BETA-1-SNAPSHOT'
 # Displays a banner to inform users that this is a prerelease version 
 prerelease: true
 asciidoc:
