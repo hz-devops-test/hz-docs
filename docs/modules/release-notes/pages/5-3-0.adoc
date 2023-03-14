@@ -40,7 +40,7 @@ https://github.com/hazelcast/hazelcast/pull/21844[#21844]
 
 * Added the Kafka connector to the distribution.
 https://github.com/hazelcast/hazelcast/pull/23312[#23312]
-* Shaded dependencies for Hazelcast Platform have been combined in a dedicated package (`com.hazelcast.shaded`).
+* Shaded dependencies for Hazelcast Platform are now combined in a dedicated package (`com.hazelcast.shaded`).
 https://github.com/hazelcast/hazelcast/pull/23124[#23124]
 
 === Networking
