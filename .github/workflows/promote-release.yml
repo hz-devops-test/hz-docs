@@ -1,0 +1,96 @@
+name: Promote from pre-prod to prod
+run-name: ${{ github.workflow }} (`${{ inputs.VERSION }}`@${{ inputs.ENVIRONMENT }})
+
+on:
+  # Called from release orchestrator
+  workflow_dispatch:
+    inputs:
+      VERSION:
+        description: 'The version to promote (e.g. `5.4.1`)'
+        required: true
+      RELEASE_TYPE:
+        description: 'What should be promoted'
+        required: true
+        type: choice
+        options:
+          - ALL
+          - OSS
+          - EE
+      ENVIRONMENT:
+        description: 'Environment to use'
+        required: true
+        type: environment
+      distinct_id:
+        description: 'Required exclusively for automated execution to track status of workflow execution'
+        required: false
+  pull_request:
+  
+jobs:
+  prepare:
+    # we need to use GH runners for now as there's a GH issue with triggering jobs on ubicloud in a private sandbox fork
+    runs-on: ubuntu-slim
+    steps:
+        # https://github.com
+      - name: Logging distinct ID (${{ inputs.distinct_id }})
+        run: echo "${DISTINCT_ID}"
+        env:
+          DISTINCT_ID: ${{ inputs.distinct_id }}
+
+  promote:
+    needs: prepare
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ inputs.ENVIRONMENT }}
+      deployment: false
+    permissions:
+      contents: write
+      pull-requests: write
+    env:
+      RELEASE_VERSION: ${{ inputs.VERSION }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ env.RELEASE_VERSION }}
+
+      - name: Get Mono version info
+        id: get-mono-info
+        uses: hazelcast/mono-actions/get-version-info@DI-719-migrate-antora-1
+        with:
+          release-version: ${{ env.RELEASE_VERSION }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          skip-set-mc-version: true
+          skip-checkout-mono: true
+
+      - name: Merge Antora Pull Requests
+        shell: python
+        run: |
+          from os import getenv
+          import antora_utils as utils
+
+          # Extract tracking parameters from step context
+          is_rel_major_minor = getenv("IS_REL_MAJOR_MINOR") == "true"
+          release_ver = getenv("RELEASE_VERSION")
+          master_version = getenv("MASTER_VERSION")
+
+          # Only merge main branch PR if major.minor
+          if is_rel_major_minor:
+              utils.merge_github_pr("main", master_version)
+
+          # Always merge release branch PR
+          utils.merge_github_pr(release_ver, release_ver)
+        env:
+          IS_REL_MAJOR_MINOR: ${{ steps.get-mono-info.outputs.is-rel-major-minor }}
+          MASTER_VERSION: ${{ steps.get-mono-info.outputs.master-version }}
+          RELEASE_VERSION: ${{ env.RELEASE_VERSION }}
+          PYTHONPATH: .github/scripts
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create and Push Version Branch
+        if: ${{ steps.get-mono-info.outputs.is-rel-major-minor == 'true' }}
+        run: |
+          v_branch_name="v/${REL_MAJOR_MINOR}"
+          git checkout -b "${v_branch_name}"
+          git push origin "${v_branch_name}"
+        env:
+          REL_MAJOR_MINOR: ${{ steps.get-mono-info.outputs.rel-major-minor }}

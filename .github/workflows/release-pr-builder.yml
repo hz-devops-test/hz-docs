@@ -1,0 +1,30 @@
+name: Run Python unit tests
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - '.github/scripts/**'
+      - '.github/workflows/package-release.yml'
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          python3 -m pip install ruamel.yaml --break-system-packages
+
+      - name: Run unit tests
+        run: |
+          python3 .github/scripts/test_antora_updater.py
