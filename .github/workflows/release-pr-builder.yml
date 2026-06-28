@@ -9,6 +9,7 @@ on:
     paths:
       - '.github/scripts/**'
       - '.github/workflows/package-release.yml'
+      - '.github/workflows/promote-release.yml'
   workflow_dispatch:
 
 jobs:
