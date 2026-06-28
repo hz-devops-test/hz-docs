@@ -4,8 +4,11 @@ on:
   pull_request:
     branches:
       - main
-    # This must go under pull_request, not workflow_dispatch!
     types: [opened, synchronize, reopened, ready_for_review]
+    # The paths must be grouped under pull_request like this:
+    paths:
+      - '.github/scripts/**'
+      - '.github/workflows/package-release.yml'
   workflow_dispatch:
 
 jobs:
