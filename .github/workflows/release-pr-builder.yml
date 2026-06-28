@@ -8,6 +8,10 @@ on:
       - '.github/scripts/**'
       - '.github/workflows/package-release.yml'
   workflow_dispatch:
+    # This allows the workflow to trigger for draft PRs and updates
+    types: [opened, synchronize, reopened, ready_for_review]
+  workflow_dispatch:
+
 jobs:
   test:
     runs-on: ubuntu-latest
