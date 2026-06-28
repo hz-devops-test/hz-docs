@@ -4,11 +4,7 @@ on:
   pull_request:
     branches:
       - main
-    paths:
-      - '.github/scripts/**'
-      - '.github/workflows/package-release.yml'
-  workflow_dispatch:
-    # This allows the workflow to trigger for draft PRs and updates
+    # This must go under pull_request, not workflow_dispatch!
     types: [opened, synchronize, reopened, ready_for_review]
   workflow_dispatch:
 
