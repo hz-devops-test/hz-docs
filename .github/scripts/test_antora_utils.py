@@ -90,6 +90,7 @@ class TestAntoraUtils(unittest.TestCase):
                 "gh", "pr", "merge",
                 "42",
                 "--squash",
+                "--admin",
                 "--delete-branch"
             ])
         ])

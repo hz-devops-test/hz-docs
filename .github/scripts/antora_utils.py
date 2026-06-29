@@ -86,6 +86,7 @@ def merge_github_pr(base_branch: str, version: str) -> None:
             "gh", "pr", "merge",
             str(pr_number),
             "--squash",
+            "--admin",
             "--delete-branch"
         ])
     except Exception as e:
