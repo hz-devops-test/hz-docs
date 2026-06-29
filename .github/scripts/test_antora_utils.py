@@ -79,6 +79,18 @@ class TestAntoraUtils(unittest.TestCase):
         with self.assertRaises(TypeError):
             antora_utils.merge_github_pr("main", "5.8.0")
 
+        mock_run_command.assert_has_calls([
+            call([
+                "gh", "search", "prs",
+                "--state", "open",
+                "--base", "main",
+                "--author", "test-user",
+                "--match", "title",
+                '"Update branch main to 5.8.0"',
+                "--json", "number,title"
+            ])
+        ])
+
     @patch.dict(os.environ, {"GITHUB_ACTOR": "test-user"})
     @patch("antora_utils.run_command")
     def test_merge_github_pr_not_found(self, mock_run_command: MagicMock) -> None:

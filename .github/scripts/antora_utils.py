@@ -57,12 +57,10 @@ def create_github_pr(base_branch: str, head_branch: str, version: str) -> None:
 
 def merge_github_pr(base_branch: str, version: str) -> None:
     target_title = get_pr_title(base_branch, version)
-    author = os.environ["GITHUB_ACTOR"]
     pr_list_output = run_command([
         "gh", "search", "prs",
         "--state", "open",
         "--base", base_branch,
-        "--author", author,
         "--match", "title",
         f'"{target_title}"',
         "--json", "number,title"
