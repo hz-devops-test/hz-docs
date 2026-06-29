@@ -21,8 +21,8 @@ class TestAntoraUtils(unittest.TestCase):
 
     @patch("antora_utils.subprocess.run")
     def test_run_command_failure(self, mock_run: MagicMock) -> None:
-        mock_run.side_effect = subprocess.CalledProcessError(1, ["git", "status"])
-        with self.assertRaises(subprocess.CalledProcessError):
+        mock_run.side_effect = subprocess.CalledProcessError(1, ["git", "status"], stderr="mock error")
+        with self.assertRaises(RuntimeError):
             antora_utils.run_command(["git", "status"])
 
     @patch("antora_utils.run_command")

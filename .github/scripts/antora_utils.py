@@ -20,8 +20,12 @@ class AntoraVersions:
         self.pop_snapshot: bool = False
 
 def run_command(command: list) -> str:
-    result = subprocess.run(command, capture_output=True, text=True, check=True)
-    return result.stdout.strip()
+    try:
+        result = subprocess.run(command, capture_output=True, text=True, check=True)
+        return result.stdout.strip()
+    except subprocess.CalledProcessError as e:
+        error_message = e.stderr.strip() if e.stderr else str(e)
+        raise RuntimeError(f"Command failed: {command}\nError: {error_message}")
 
 def get_pr_title(base_branch: str, version: str) -> str:
     return f"Update branch {base_branch} to {version}"
