@@ -96,7 +96,6 @@ jobs:
         env:
           IS_REL_MAJOR_MINOR: ${{ steps.get-mono-info.outputs.is-rel-major-minor }}
           MASTER_VERSION: ${{ steps.get-mono-info.outputs.master-version }}
-          RELEASE_VERSION: ${{ env.RELEASE_VERSION }}
           PYTHONPATH: ${{ github.workspace }}/src-scripts/.github/scripts
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
@@ -110,3 +109,22 @@ jobs:
         env:
           REL_MAJOR_MINOR: ${{ steps.get-mono-info.outputs.rel-major-minor }}
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+
+      - name: Create and Push Version Branch
+        if: ${{ steps.get-mono-info.outputs.is-rel-major-minor == 'true' }}
+        shell: python
+        working-directory: ${{ env.RELEASE_VERSION }}
+        run: |
+          from os import getenv
+          import antora_utils as utils
+
+          rel_major_minor = getenv("REL_MAJOR_MINOR")
+          release_version = getenv("RELEASE_VERSION")
+          v_branch_name = f"v/{rel_major_minor}"
+
+          utils.git_checkout_remote(v_branch_name, release_version)
+          utils.git_push_remote(v_branch_name)
+        env:
+          REL_MAJOR_MINOR: ${{ steps.get-mono-info.outputs.rel-major-minor }}
+          PYTHONPATH: ${{ github.workspace }}/src-scripts/.github/scripts
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
