@@ -1,4 +1,4 @@
-name: Promote from pre-prod to prod
+name: Promote release
 run-name: ${{ github.workflow }} (`${{ inputs.VERSION }}`@${{ inputs.ENVIRONMENT }})
 
 on:
@@ -60,6 +60,9 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           skip-set-mc-version: true
           skip-checkout-mono: true
+
+      - name: Install ruamel.yaml
+        run: python3 -m pip install ruamel.yaml
 
       - name: Merge Antora Pull Requests
         shell: python
