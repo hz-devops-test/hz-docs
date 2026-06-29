@@ -27,14 +27,19 @@ def resolve_versions(target_version: str, rel_major_minor: str, master_major_min
         antora_versions.full_version = target_version
     elif is_beta_release:
         local_clean = target_version.upper().replace("-SNAPSHOT", "")
-        beta_suffix = local_clean.replace(f"{rel_major_minor.upper()}.0-", "")
+        beta_suffix = local_clean.split("-", 1)[1]
+
+        suffix_lower = beta_suffix.lower()
+        suffix_upper = beta_suffix.upper()
+        mm_lower = rel_major_minor.lower()
+        mm_upper = rel_major_minor.upper()
         
-        antora_versions.version = f"{rel_major_minor.lower()}-{beta_suffix.lower()}"
-        antora_versions.display_version = f"{rel_major_minor.upper()}-{beta_suffix.upper()}"
+        antora_versions.version = f"{mm_lower}-{suffix_lower}"
+        antora_versions.display_version = f"{mm_upper}-{suffix_upper}"
         antora_versions.full_version = target_version
         
-        antora_versions.minor_version = attrs.get('minor-version')
-        antora_versions.attr_version = attrs.get('version')
+        antora_versions.minor_version = f"{mm_lower}-{suffix_lower}"
+        antora_versions.attr_version = f"{mm_lower}-{suffix_lower}"
         antora_versions.os_version = attrs.get('os-version')
         antora_versions.ee_version = target_version
         antora_versions.pop_snapshot = False
