@@ -1,4 +1,4 @@
-name: Package and deploy to pre-prod
+name: Package release
 run-name: ${{ github.workflow }} (`${{ inputs.VERSION }}`@${{ inputs.ENVIRONMENT }})
 
 on:
@@ -55,7 +55,7 @@ jobs:
         uses: hazelcast/mono-actions/get-version-info@DI-719-migrate-antora-1
         with:
           release-version: ${{ env.RELEASE_VERSION }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.GH_TOKEN }}
           jfrog-files-repo: ${{ vars.JFROG_PREPROD_FILES_REPO }}
           aws-role-to-assume: ${{ vars.AWS_HAZELCAST_OIDC_GITHUB_ACTIONS_ROLE_ARN }}
 
