@@ -109,11 +109,18 @@ jobs:
 
           rel_major_minor = getenv("REL_MAJOR_MINOR")
           release_version = getenv("RELEASE_VERSION")
-          v_branch_name = f"v/{rel_major_minor}"
+          v_branch_name = ""
+
+          if getenv("IS_BETA_RELEASE") == "true":
+              beta_number = release_version.split("-BETA-")[1]
+              v_branch_name = f"v/{rel_major_minor}-BETA-{beta_number}"
+          else:
+              v_branch_name = f"v/{rel_major_minor}"
 
           utils.git_checkout_remote(v_branch_name, release_version)
           utils.git_push_remote(v_branch_name)
         env:
           REL_MAJOR_MINOR: ${{ steps.get-mono-info.outputs.rel-major-minor }}
+          IS_BETA_RELEASE: ${{ steps.get-mono-info.outputs.is-beta-release }}
           PYTHONPATH: ${{ github.workspace }}/src-scripts/.github/scripts
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
