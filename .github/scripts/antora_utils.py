@@ -30,38 +30,40 @@ def run_command(command: list) -> str:
 def get_pr_title(base_branch: str, version: str) -> str:
     return f"Update branch {base_branch} to {version}"
 
-def checkout_branch(prefix: str, branch: str) -> str:
-    timestamp = datetime.now().strftime("%d%m%Y%H%M%S")
-    update_branch = f"update_{prefix}_{branch}_{timestamp}"
+def git_checkout_remote(local_branch: str, remote_branch: str) -> None:
     run_command([
         "git", "fetch",
-        "origin", branch
+        "origin", remote_branch
     ])
     run_command([
         "git", "checkout",
-        "-b", update_branch,
-        f"origin/{branch}"
+        "-b", local_branch,
+        f"origin/{remote_branch}"
     ])
+
+def checkout_branch(prefix: str, branch: str) -> str:
+    timestamp = datetime.now().strftime("%d%m%Y%H%M%S")
+    update_branch = f"update_{prefix}_{branch}_{timestamp}"
+    git_checkout_remote(update_branch, branch)
     return update_branch
 
-def commit_changes(branch: str, version: str, file_path: str) -> None:
+def git_push_remote(branch_name: str) -> None:
+    run_command([
+        "git", "push",
+        "origin",
+        branch_name
+    ])
+
+def commit_changes(base_branch: str, version: str, file_path: str, active_branch: str) -> None:
     run_command([
         "git", "add",
         file_path
     ])
     run_command([
         "git", "commit",
-        "--message", f"Update branch {branch} to {version}"
+        "--message", f"Update branch {base_branch} to {version}"
     ])
-    current_branch = run_command([
-        "git", "branch",
-        "--show-current"
-    ])
-    run_command([
-        "git", "push",
-        "origin",
-        current_branch
-    ])
+    git_push_remote(active_branch)
 
 def create_github_pr(base_branch: str, head_branch: str, version: str) -> None:
     title = get_pr_title(base_branch, version)

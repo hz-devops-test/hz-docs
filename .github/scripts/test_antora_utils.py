@@ -26,32 +26,57 @@ class TestAntoraUtils(unittest.TestCase):
             antora_utils.run_command(["git", "status"])
 
     @patch("antora_utils.run_command")
+    def test_git_checkout_remote(self, mock_run_command: MagicMock) -> None:
+        antora_utils.git_checkout_remote("local-feature", "remote-base")
+        expected_calls = [
+            call([
+                "git", "fetch",
+                "origin", "remote-base"
+            ]),
+            call([
+                "git", "checkout",
+                "-b", "local-feature",
+                "origin/remote-base"
+            ])
+        ]
+        mock_run_command.assert_has_calls(expected_calls)
+
+    @patch("antora_utils.git_checkout_remote")
     @patch("antora_utils.datetime")
-    def test_checkout_branch(self, mock_datetime: MagicMock, mock_run_command: MagicMock) -> None:
+    def test_checkout_branch(self, mock_datetime: MagicMock, mock_checkout_remote: MagicMock) -> None:
         mock_datetime.now.return_value = MagicMock(strftime=MagicMock(return_value="29062026105000"))
         
         branch_name = antora_utils.checkout_branch("release", "5.8.0")
         
         self.assertEqual(branch_name, "update_release_5.8.0_29062026105000")
-        expected_calls = [
-            call(["git", "fetch", "origin", "5.8.0"]),
-            call(["git", "checkout", "-b", "update_release_5.8.0_29062026105000", "origin/5.8.0"])
-        ]
-        mock_run_command.assert_has_calls(expected_calls)
+        mock_checkout_remote.assert_called_once_with("update_release_5.8.0_29062026105000", "5.8.0")
 
     @patch("antora_utils.run_command")
-    def test_commit_changes(self, mock_run_command: MagicMock) -> None:
-        mock_run_command.side_effect = ["", "", "update_feature_branch", ""]
-        
-        antora_utils.commit_changes("main", "5.8.0", "docs/antora.yml")
+    def test_git_push_remote(self, mock_run_command: MagicMock) -> None:
+        antora_utils.git_push_remote("feature-branch")
+        mock_run_command.assert_called_once_with([
+            "git", "push",
+            "origin",
+            "feature-branch"
+        ])
+
+    @patch("antora_utils.git_push_remote")
+    @patch("antora_utils.run_command")
+    def test_commit_changes(self, mock_run_command: MagicMock, mock_push_remote: MagicMock) -> None:
+        antora_utils.commit_changes("main", "5.8.0", "docs/antora.yml", "update_feature_branch")
         
         expected_calls = [
-            call(["git", "add", "docs/antora.yml"]),
-            call(["git", "commit", "--message", "Update branch main to 5.8.0"]),
-            call(["git", "branch", "--show-current"]),
-            call(["git", "push", "origin", "update_feature_branch"])
+            call([
+                "git", "add",
+                "docs/antora.yml"
+            ]),
+            call([
+                "git", "commit",
+                "--message", "Update branch main to 5.8.0"
+            ])
         ]
         mock_run_command.assert_has_calls(expected_calls)
+        mock_push_remote.assert_called_once_with("update_feature_branch")
 
     @patch.dict(os.environ, {
         "GITHUB_SERVER_URL": "https://github.com",
@@ -82,13 +107,11 @@ class TestAntoraUtils(unittest.TestCase):
                 "gh", "search", "prs",
                 "--state", "open",
                 "--base", "main",
-                "--match", "title",
-                '"Update branch main to 5.8.0"',
+                "--match", "title", f'"Update branch main to 5.8.0"',
                 "--json", "number,title"
             ]),
             call([
-                "gh", "pr", "merge",
-                "42",
+                "gh", "pr", "merge", "42",
                 "--squash",
                 "--admin",
                 "--delete-branch"
