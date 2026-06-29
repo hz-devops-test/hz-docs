@@ -127,7 +127,7 @@ def update_release(release_ver: str, rel_major_minor: str, master_major_minor: s
         is_main=False
     )
     
-    utils.commit_changes(target_base, release_ver, ANTORA_FILE)
+    utils.commit_changes(target_base, release_ver, ANTORA_FILE, update_branch)
     utils.create_github_pr(target_base, update_branch, release_ver)
 
 def update_main(release_ver: str, master_version: str, rel_major_minor: str, master_major_minor: str,
@@ -147,7 +147,7 @@ def update_main(release_ver: str, master_version: str, rel_major_minor: str, mas
         is_main=True
     )
     
-    utils.commit_changes(target_base, master_version, ANTORA_FILE)
+    utils.commit_changes(target_base, master_version, ANTORA_FILE, update_branch)
     utils.create_github_pr(target_base, update_branch, master_version)
 
 def log_inputs(release_ver: str, rel_major_minor: str, master_version: str, master_major_minor: str,
