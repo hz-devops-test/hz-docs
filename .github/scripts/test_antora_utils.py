@@ -89,7 +89,7 @@ class TestAntoraUtils(unittest.TestCase):
             call([
                 "gh", "pr", "merge",
                 "42",
-                "--merge",
+                "--squash",
                 "--delete-branch"
             ])
         ])
