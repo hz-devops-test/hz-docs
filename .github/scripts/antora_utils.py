@@ -33,16 +33,34 @@ def get_pr_title(base_branch: str, version: str) -> str:
 def checkout_branch(prefix: str, branch: str) -> str:
     timestamp = datetime.now().strftime("%d%m%Y%H%M%S")
     update_branch = f"update_{prefix}_{branch}_{timestamp}"
-    run_command(["git", "fetch", "origin", branch])
-    run_command(["git", "checkout", "-b", update_branch, f"origin/{branch}"])
-    print(update_branch)
+    run_command([
+        "git", "fetch", "origin", branch
+    ])
+    run_command([
+        "git", "checkout",
+        "--branch", update_branch,
+        f"origin/{branch}"
+    ])
+    logger.info(f" Current branch {update_branch}")
     return update_branch
 
 def commit_changes(branch: str, version: str, file_path: str) -> None:
-    run_command(["git", "add", file_path])
-    run_command(["git", "commit", "-m", f"Update branch {branch} to {version}"])
-    current_branch = run_command(["git", "branch", "--show-current"])
-    run_command(["git", "push", "origin", current_branch])
+    run_command([
+        "git", "add", file_path
+    ])
+    run_command([
+        "git", "commit",
+        "--message", f"Update branch {branch} to {version}"
+    ])
+    current_branch = run_command([
+        "git", "branch",
+        "--show-current"
+    ])
+    run_command([
+        "git", "push",
+        "origin",
+        current_branch
+    ])
 
 def create_github_pr(base_branch: str, head_branch: str, version: str) -> None:
     title = get_pr_title(base_branch, version)
@@ -65,8 +83,7 @@ def merge_github_pr(base_branch: str, version: str) -> None:
         "gh", "search", "prs",
         "--state", "open",
         "--base", base_branch,
-        "--match", "title",
-        f'"{target_title}"',
+        "--match", "title", f'"{target_title}"',
         "--json", "number,title"
     ])
     try:
@@ -83,8 +100,7 @@ def merge_github_pr(base_branch: str, version: str) -> None:
     pr_number = matching_pr["number"]
     try:
         run_command([
-            "gh", "pr", "merge",
-            str(pr_number),
+            "gh", "pr", "merge", str(pr_number),
             "--squash",
             "--admin",
             "--delete-branch"
@@ -108,3 +124,5 @@ def setup_logger(name: str = __name__) -> logging.Logger:
         handlers=[logging.StreamHandler(sys.stdout)]
     )
     return logging.getLogger(name)
+
+logger = setup_logger()
