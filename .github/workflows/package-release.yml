@@ -43,13 +43,13 @@ jobs:
     env:
       RELEASE_VERSION: ${{ inputs.VERSION }}
     steps:
-      - name: Checkout repository tag
+      - name: Checkout `release` branch
         uses: actions/checkout@v7
         with:
           ref: ${{ env.RELEASE_VERSION }}
           path: ${{ env.RELEASE_VERSION }}
 
-      - name: Checkout automation scripts
+      - name: Checkout `main` automation scripts
         uses: actions/checkout@v7
         with:
           path: src-scripts

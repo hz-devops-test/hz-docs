@@ -1,4 +1,4 @@
-name: Run Python unit tests
+name: Run releass unit tests
 
 on:
   pull_request:
@@ -31,4 +31,4 @@ jobs:
 
       - name: Run unit tests
         run: |
-          python3 .github/scripts/test_antora_updater.py
+          python3 -m unittest discover -s .github/scripts -p "test_*.py"
