@@ -1,4 +1,4 @@
-name: Run releass unit tests
+name: Run release unit tests
 
 on:
   pull_request:
