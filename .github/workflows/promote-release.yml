@@ -84,17 +84,19 @@ jobs:
 
           # Extract tracking parameters from step context
           is_rel_major_minor = getenv("IS_REL_MAJOR_MINOR") == "true"
+          is_beta = getenv("IS_BETA_RELEASE") == "true"
           release_ver = getenv("RELEASE_VERSION")
           master_version = getenv("MASTER_VERSION")
 
-          # Only merge main branch PR if major.minor
-          if is_rel_major_minor:
+          # Only merge main branch PR if major.minor and not a beta release
+          if is_rel_major_minor and not is_beta:
               utils.merge_github_pr("main", master_version)
 
           # Always merge release branch PR
           utils.merge_github_pr(release_ver, release_ver)
         env:
           IS_REL_MAJOR_MINOR: ${{ steps.get-mono-info.outputs.is-rel-major-minor }}
+          IS_BETA_RELEASE: ${{ steps.get-mono-info.outputs.is-beta-release }}
           MASTER_VERSION: ${{ steps.get-mono-info.outputs.master-version }}
           PYTHONPATH: ${{ github.workspace }}/src-scripts/.github/scripts
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
