@@ -99,18 +99,7 @@ jobs:
           PYTHONPATH: ${{ github.workspace }}/src-scripts/.github/scripts
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
-      - name: Create and Push Version Branch
-        if: ${{ steps.get-mono-info.outputs.is-rel-major-minor == 'true' }}
-        working-directory: ${{ env.RELEASE_VERSION }}
-        run: |
-          v_branch_name="v/${REL_MAJOR_MINOR}"
-          git checkout -b "${v_branch_name}"
-          git push origin "${v_branch_name}"
-        env:
-          REL_MAJOR_MINOR: ${{ steps.get-mono-info.outputs.rel-major-minor }}
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
-
-      - name: Create and Push Version Branch
+      - name: Create and push v/branch from release branch
         if: ${{ steps.get-mono-info.outputs.is-rel-major-minor == 'true' }}
         shell: python
         working-directory: ${{ env.RELEASE_VERSION }}
