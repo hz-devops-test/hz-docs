@@ -4,9 +4,6 @@ on:
   pull_request:
     branches:
       - main
-    # Ignore automated release package PR branches
-    branches-ignore:
-      - 'update_antora_*'
     types: [opened, synchronize]
     paths:
       - '.github/scripts/**'
@@ -16,6 +13,8 @@ on:
 
 jobs:
   test:
+    # Ignore automated release PR branches
+    if: ${{ !startsWith(github.head_ref, 'update_antora_') }}
     runs-on: ubuntu-latest
 
     steps:
