@@ -57,7 +57,7 @@ jobs:
         uses: hazelcast/mono-actions/get-version-info@DI-719-migrate-antora-1
         with:
           release-version: ${{ env.RELEASE_VERSION }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.GH_TOKEN }}
           skip-set-mc-version: true
 
       - name: Install ruamel.yaml
