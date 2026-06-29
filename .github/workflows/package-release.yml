@@ -69,6 +69,8 @@ jobs:
           from os import getenv
           import antora_updater as antora
 
+          sys.path.append(f"{getenv('GITHUB_WORKSPACE')}/.github/scripts")
+
           antora.update(
               release_ver=getenv("RELEASE_VERSION"),
               rel_major_minor=getenv("REL_MAJOR_MINOR"),
