@@ -76,6 +76,7 @@ jobs:
           git config user.email "${GITHUB_ACTOR}@users.noreply.github.com"
 
       - name: Merge Antora Pull Requests
+        working-directory: ${{ env.RELEASE_VERSION }}
         shell: python
         run: |
           from os import getenv
