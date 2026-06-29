@@ -42,7 +42,6 @@ def checkout_branch(prefix: str, branch: str) -> str:
         "-b", update_branch,
         f"origin/{branch}"
     ])
-    logger.info(f" Current branch {update_branch}")
     return update_branch
 
 def commit_changes(branch: str, version: str, file_path: str) -> None:
