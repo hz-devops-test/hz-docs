@@ -45,10 +45,16 @@ jobs:
     env:
       RELEASE_VERSION: ${{ inputs.VERSION }}
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v7
+      - name: Checkout repository tag
+        uses: actions/checkout@v4
         with:
           ref: ${{ env.RELEASE_VERSION }}
+          path: src-code
+
+      - name: Checkout automation scripts
+        uses: actions/checkout@v4
+        with:
+          path: src-scripts
 
       - name: Get Mono version info
         id: get-mono-info
@@ -69,8 +75,6 @@ jobs:
           from os import getenv
           import antora_updater as antora
 
-          sys.path.append(f"{getenv('GITHUB_WORKSPACE')}/.github/scripts")
-
           antora.update(
               release_ver=getenv("RELEASE_VERSION"),
               rel_major_minor=getenv("REL_MAJOR_MINOR"),
@@ -88,5 +92,5 @@ jobs:
           IS_LATEST_STABLE_RELEASE: ${{ steps.get-mono-info.outputs.is-latest-stable-release }}
           IS_BETA_RELEASE: ${{ steps.get-mono-info.outputs.is-beta-release }}
           IS_REL_MAJOR_MINOR: ${{ steps.get-mono-info.outputs.is-rel-major-minor }}
-          PYTHONPATH: ${{ github.workspace }}/.github/scripts
+          PYTHONPATH: ${{ github.workspace }}/src-scripts/.github/scripts
           GH_TOKEN: ${{ github.token }}
