@@ -34,11 +34,12 @@ def checkout_branch(prefix: str, branch: str) -> str:
     timestamp = datetime.now().strftime("%d%m%Y%H%M%S")
     update_branch = f"update_{prefix}_{branch}_{timestamp}"
     run_command([
-        "git", "fetch", "origin", branch
+        "git", "fetch",
+        "origin", branch
     ])
     run_command([
         "git", "checkout",
-        "--branch", update_branch,
+        "-b", update_branch,
         f"origin/{branch}"
     ])
     logger.info(f" Current branch {update_branch}")
@@ -46,7 +47,8 @@ def checkout_branch(prefix: str, branch: str) -> str:
 
 def commit_changes(branch: str, version: str, file_path: str) -> None:
     run_command([
-        "git", "add", file_path
+        "git", "add",
+        file_path
     ])
     run_command([
         "git", "commit",
