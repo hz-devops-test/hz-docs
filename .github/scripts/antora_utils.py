@@ -71,7 +71,7 @@ def merge_github_pr(base_branch: str, version: str) -> None:
         raise RuntimeError(f"Failed to parse JSON: {e}")
     exact_matches = [pr for pr in prs if pr.get("title") == target_title]
     if not exact_matches:
-        raise RuntimeError(f"PR not found: '{target_title}' (Base: {base_branch}, Author: {author})")
+        raise RuntimeError(f"PR not found: '{target_title}' (Base: {base_branch})")
     elif len(exact_matches) > 1:
         pr_numbers = [pr["number"] for pr in exact_matches]
         raise RuntimeError(f"Conflict: Multiple open PRs found with title '{target_title}'. PRs: {pr_numbers}")
