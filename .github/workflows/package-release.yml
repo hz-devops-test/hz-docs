@@ -57,6 +57,7 @@ jobs:
           release-version: ${{ env.RELEASE_VERSION }}
           github-token: ${{ secrets.GH_TOKEN }}
           jfrog-files-repo: ${{ vars.JFROG_PREPROD_FILES_REPO }}
+          skip-set-mc-version: true
           aws-role-to-assume: ${{ vars.AWS_HAZELCAST_OIDC_GITHUB_ACTIONS_ROLE_ARN }}
 
       - name: Install ruamel.yaml
