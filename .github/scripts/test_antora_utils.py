@@ -47,7 +47,7 @@ class TestAntoraUtils(unittest.TestCase):
         
         expected_calls = [
             call(["git", "add", "docs/antora.yml"]),
-            call(["git", "commit", "-m", "Update branch main to 5.8.0"]),
+            call(["git", "commit", "--message", "Update branch main to 5.8.0"]),
             call(["git", "branch", "--show-current"]),
             call(["git", "push", "origin", "update_feature_branch"])
         ]
