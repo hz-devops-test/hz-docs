@@ -86,5 +86,5 @@ jobs:
           IS_LATEST_STABLE_RELEASE: ${{ steps.get-mono-info.outputs.is-latest-stable-release }}
           IS_BETA_RELEASE: ${{ steps.get-mono-info.outputs.is-beta-release }}
           IS_REL_MAJOR_MINOR: ${{ steps.get-mono-info.outputs.is-rel-major-minor }}
-          PYTHONPATH: .github/scripts
+          PYTHONPATH: ${{ github.workspace }}/.github/scripts
           GH_TOKEN: ${{ github.token }}
