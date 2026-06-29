@@ -98,5 +98,4 @@ jobs:
           IS_BETA_RELEASE: ${{ steps.get-mono-info.outputs.is-beta-release }}
           IS_REL_MAJOR_MINOR: ${{ steps.get-mono-info.outputs.is-rel-major-minor }}
           PYTHONPATH: ${{ github.workspace }}/src-scripts/.github/scripts
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
