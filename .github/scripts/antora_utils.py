@@ -75,7 +75,7 @@ def merge_github_pr(base_branch: str, version: str) -> None:
     elif len(exact_matches) > 1:
         pr_numbers = [pr["number"] for pr in exact_matches]
         raise RuntimeError(f"Conflict: Multiple open PRs found with title '{target_title}'. PRs: {pr_numbers}")
-    matching_pr = exact_matches
+    matching_pr = exact_matches[0]
     pr_number = matching_pr["number"]
     try:
         run_command([

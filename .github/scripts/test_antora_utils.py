@@ -70,28 +70,30 @@ class TestAntoraUtils(unittest.TestCase):
             "--head", "feature-branch"
         ])
 
-    @patch.dict(os.environ, {"GITHUB_ACTOR": "test-user"})
     @patch("antora_utils.run_command")
     def test_merge_github_pr_success(self, mock_run_command: MagicMock) -> None:
         mock_prs_json = json.dumps([{"number": 42, "title": "Update branch main to 5.8.0"}])
         mock_run_command.side_effect = [mock_prs_json, ""]
         
-        with self.assertRaises(TypeError):
-            antora_utils.merge_github_pr("main", "5.8.0")
+        antora_utils.merge_github_pr("main", "5.8.0")
 
         mock_run_command.assert_has_calls([
             call([
                 "gh", "search", "prs",
                 "--state", "open",
                 "--base", "main",
-                "--author", "test-user",
                 "--match", "title",
                 '"Update branch main to 5.8.0"',
                 "--json", "number,title"
+            ]),
+            call([
+                "gh", "pr", "merge",
+                "42",
+                "--merge",
+                "--delete-branch"
             ])
         ])
 
-    @patch.dict(os.environ, {"GITHUB_ACTOR": "test-user"})
     @patch("antora_utils.run_command")
     def test_merge_github_pr_not_found(self, mock_run_command: MagicMock) -> None:
         mock_run_command.return_value = json.dumps([])
@@ -101,7 +103,6 @@ class TestAntoraUtils(unittest.TestCase):
             
         self.assertIn("PR not found", str(context.exception))
 
-    @patch.dict(os.environ, {"GITHUB_ACTOR": "test-user"})
     @patch("antora_utils.run_command")
     def test_merge_github_pr_conflict_multiple(self, mock_run_command: MagicMock) -> None:
         mock_prs_json = json.dumps([
