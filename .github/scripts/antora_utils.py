@@ -20,7 +20,7 @@ class AntoraVersions:
         self.pop_snapshot: bool = False
 
 def run_command(command: list) -> str:
-
+    logger.debug(f"Executing command: {' '.join(command)}")
     try:
         result = subprocess.run(command, capture_output=True, text=True, check=True)
         return result.stdout.strip()

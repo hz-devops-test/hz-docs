@@ -2,7 +2,7 @@
 import os
 import sys
 import unittest
-from unittest.mock import patch
+from unittest.mock import patch, call
 from ruamel.yaml import YAML
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -259,6 +259,42 @@ nav:
         self.assertEqual(patch_data["asciidoc"]["attributes"]["full-version"], "5.8.1")
         self.assertEqual(patch_data["asciidoc"]["attributes"]["os-version"], "5.8.0")
         self.assert_untouched_properties(patch_data)
+
+    @patch("antora_utils.merge_github_pr")
+    def test_promote_pull_requests_major_minor(self, mock_merge) -> None:
+        antora.promote_pull_requests(
+            is_beta_release="false",
+            is_rel_major_minor="true",
+            release_version="5.8.0",
+            master_version="5.9.0-SNAPSHOT",
+            rel_major_minor="5.8"
+        )
+        mock_merge.assert_has_calls([
+            call("main", "5.9.0-SNAPSHOT"),
+            call("5.8.0", "5.8.0")
+        ])
+
+    @patch("antora_utils.merge_github_pr")
+    def test_promote_pull_requests_beta(self, mock_merge) -> None:
+        antora.promote_pull_requests(
+            is_beta_release="true",
+            is_rel_major_minor="true",
+            release_version="5.8.0-BETA-1",
+            master_version="5.8.0-SNAPSHOT",
+            rel_major_minor="5.8"
+        )
+        mock_merge.assert_called_once_with("v/5.8", "5.8.0-BETA-1")
+
+    @patch("antora_utils.merge_github_pr")
+    def test_promote_pull_requests_patch(self, mock_merge) -> None:
+        antora.promote_pull_requests(
+            is_beta_release="false",
+            is_rel_major_minor="false",
+            release_version="5.8.1",
+            master_version="5.9.0-SNAPSHOT",
+            rel_major_minor="5.8"
+        )
+        mock_merge.assert_called_once_with("v/5.8", "5.8.1")
 
 if __name__ == "__main__":
     unittest.main(testRunner=unittest.TextTestRunner(verbosity=2))

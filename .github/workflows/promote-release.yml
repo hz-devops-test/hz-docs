@@ -77,24 +77,15 @@ jobs:
         shell: python
         run: |
           from os import getenv
-          import antora_utils as utils
+          import antora_updater as updater
 
-          is_beta = getenv("IS_BETA_RELEASE") == "true"
-          is_rel_major_minor = getenv("IS_REL_MAJOR_MINOR") == "true" and not is_beta
-          release_ver = getenv("RELEASE_VERSION")
-          master_version = getenv("MASTER_VERSION")
-          rel_major_minor = getenv("REL_MAJOR_MINOR")
-
-          if is_rel_major_minor:
-              utils.merge_github_pr("main", master_version)
-
-          if not is_rel_major_minor:
-              base_branch = f"v/{rel_major_minor}"
-          else:
-              base_branch = release_ver
-
-          # Always merge release branch PR
-          utils.merge_github_pr(base_branch, release_ver)
+          updater.promote_pull_requests(
+              is_beta_release=getenv("IS_BETA_RELEASE"),
+              is_rel_major_minor=getenv("IS_REL_MAJOR_MINOR"),
+              release_version=getenv("RELEASE_VERSION"),
+              master_version=getenv("MASTER_VERSION"),
+              rel_major_minor=getenv("REL_MAJOR_MINOR")
+          )
         env:
           IS_REL_MAJOR_MINOR: ${{ steps.get-mono-version-info.outputs.is-rel-major-minor }}
           IS_BETA_RELEASE: ${{ steps.get-mono-version-info.outputs.is-beta-release }}

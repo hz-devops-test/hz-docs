@@ -23,7 +23,7 @@ def log_inputs(release_ver: str, rel_major_minor: str, master_version: str, mast
         master_major_minor:       {master_major_minor}
         is_latest_stable_release: {is_latest_stable_release}
         is_beta_release:          {is_beta_release}
-        is_rel_major_minor:          {is_rel_major_minor}
+        is_rel_major_minor:       {is_rel_major_minor}
     """))
 
 def resolve_versions(target_version: str, rel_major_minor: str, master_major_minor: str, 
@@ -196,3 +196,18 @@ def update(release_ver: str, rel_major_minor: str, master_version: str, master_m
         is_beta_release=beta,
         is_rel_major_minor=maj_min
     )
+
+def promote_pull_requests(is_beta_release: str, is_rel_major_minor: str, release_version: str, master_version: str, rel_major_minor: str) -> None:
+
+    beta: bool = is_beta_release.lower() == "true"
+    maj_min: bool = is_rel_major_minor.lower() == "true" and not beta
+
+    if maj_min:
+        utils.merge_github_pr("main", master_version)
+
+    if not maj_min:
+        base_branch = f"v/{rel_major_minor}"
+    else:
+        base_branch = release_version
+
+    utils.merge_github_pr(base_branch, release_version)
