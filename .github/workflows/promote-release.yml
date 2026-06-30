@@ -60,8 +60,8 @@ jobs:
         uses: hazelcast/mono-actions/get-version-info@DI-719-migrate-antora-1
         with:
           release-version: ${{ env.RELEASE_VERSION }}
-          github-token: ${{ secrets.GH_TOKEN }}
           skip-set-mc-version: true
+          github-token: ${{ secrets.GH_TOKEN }}
 
       - name: Install ruamel.yaml
         run: python3 -m pip install ruamel.yaml packaging
@@ -79,7 +79,7 @@ jobs:
           from os import getenv
           import antora_updater as updater
 
-          updater.promote_pull_requests(
+          updater.merge_pull_requests(
               is_beta_release=getenv("IS_BETA_RELEASE"),
               is_rel_major_minor=getenv("IS_REL_MAJOR_MINOR"),
               release_version=getenv("RELEASE_VERSION"),

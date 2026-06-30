@@ -261,8 +261,8 @@ nav:
         self.assert_untouched_properties(patch_data)
 
     @patch("antora_utils.merge_github_pr")
-    def test_promote_pull_requests_major_minor(self, mock_merge) -> None:
-        antora.promote_pull_requests(
+    def test_merge_pull_requests_major_minor(self, mock_merge) -> None:
+        antora.merge_pull_requests(
             is_beta_release="false",
             is_rel_major_minor="true",
             release_version="5.8.0",
@@ -275,8 +275,8 @@ nav:
         ])
 
     @patch("antora_utils.merge_github_pr")
-    def test_promote_pull_requests_beta(self, mock_merge) -> None:
-        antora.promote_pull_requests(
+    def test_merge_pull_requests_beta(self, mock_merge) -> None:
+        antora.merge_pull_requests(
             is_beta_release="true",
             is_rel_major_minor="true",
             release_version="5.8.0-BETA-1",
@@ -286,8 +286,8 @@ nav:
         mock_merge.assert_called_once_with("5.8.0-BETA-1", "5.8.0-BETA-1")
 
     @patch("antora_utils.merge_github_pr")
-    def test_promote_pull_requests_patch(self, mock_merge) -> None:
-        antora.promote_pull_requests(
+    def test_merge_pull_requests_patch(self, mock_merge) -> None:
+        antora.merge_pull_requests(
             is_beta_release="false",
             is_rel_major_minor="false",
             release_version="5.8.1",

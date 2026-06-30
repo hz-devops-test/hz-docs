@@ -20,6 +20,9 @@ class AntoraVersions:
         self.pop_snapshot: bool = False
 
 def run_command(command: list) -> str:
+    """
+    Runs single command. Emits full command if debug is enabled
+    """
     logger.debug(f"Executing command: {' '.join(command)}")
     try:
         result = subprocess.run(command, capture_output=True, text=True, check=True)
@@ -29,10 +32,15 @@ def run_command(command: list) -> str:
         raise RuntimeError(f"Command failed: {command}\nError: {error_message}")
 
 def get_pr_title(base_branch: str, version: str) -> str:
+    """
+    Returns PR title with base/target branch and version
+    """
     return f"Update branch {base_branch} to {version}"
 
 def git_checkout_remote(local_branch: str, remote_branch: str) -> None:
-
+    """
+    Performs repo `fetch` and `checkout` using `git` cli
+    """
     run_command([
         "git", "fetch",
         "origin", remote_branch
@@ -44,14 +52,18 @@ def git_checkout_remote(local_branch: str, remote_branch: str) -> None:
     ])
 
 def checkout_branch(prefix: str, branch: str) -> str:
-
+    """
+    Checks out unique PR branch from remote using `git` cli
+    """
     timestamp = datetime.now().strftime("%d%m%Y%H%M%S")
     update_branch = f"update_{prefix}_{branch}_{timestamp}"
     git_checkout_remote(update_branch, branch)
     return update_branch
 
 def git_push_remote(branch_name: str) -> None:
-
+    """
+    Remote pushes supplied branch using `git` cli
+    """
     run_command([
         "git", "push",
         "origin",
@@ -59,7 +71,9 @@ def git_push_remote(branch_name: str) -> None:
     ])
 
 def commit_changes(base_branch: str, version: str, file_path: str, active_branch: str) -> None:
-
+    """
+    Adds/commits local changes and remote pushes `base_branch` using `git` cli
+    """
     run_command([
         "git", "add",
         file_path
@@ -71,7 +85,9 @@ def commit_changes(base_branch: str, version: str, file_path: str, active_branch
     git_push_remote(active_branch)
 
 def create_github_pr(base_branch: str, head_branch: str, version: str) -> None:
-
+    """
+    Creates GitHub PR using `gh` cli. Adds link to the current build run ID in the PR body
+    """
     title = get_pr_title(base_branch, version)
     server_url = os.environ["GITHUB_SERVER_URL"]
     repository = os.environ["GITHUB_REPOSITORY"]
@@ -87,7 +103,11 @@ def create_github_pr(base_branch: str, head_branch: str, version: str) -> None:
     ])
 
 def merge_github_pr(base_branch: str, version: str) -> None:
-
+    """
+    Merges pre-existing `Open` GitHub PR using `gh` cli. It searches for the PR and
+    `squash` merges the PR. It will error out if more than one PR is found (only one is expected
+    for any given release)
+    """
     target_title = get_pr_title(base_branch, version)
     pr_list_output = run_command([
         "gh", "search", "prs",
@@ -119,13 +139,17 @@ def merge_github_pr(base_branch: str, version: str) -> None:
         raise RuntimeError(f"Failed to merge PR #{pr_number}: {e}")
 
 def print_yaml_content(data: Any, yaml_processor: YAML, file_path: str, pipe_logger: logging.Logger) -> None:
-
+    """
+    Debug prints `antora.yml` versions after update
+    """
     if pipe_logger.isEnabledFor(logging.DEBUG):
         pipe_logger.debug(f"Updated content of {file_path}:")
         yaml_processor.dump(data, sys.stdout)
 
 def setup_logger(name: str = __name__) -> logging.Logger:
-
+    """
+    Setups logger. Debug logging level is set if user eneables via GitHub UI
+    """
     if os.environ.get("RUNNER_DEBUG") == "1":
         current_level = logging.DEBUG
     else:
@@ -137,4 +161,7 @@ def setup_logger(name: str = __name__) -> logging.Logger:
     )
     return logging.getLogger(name)
 
+"""
+Logger instance for this module
+"""
 logger = setup_logger()

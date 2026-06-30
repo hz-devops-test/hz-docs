@@ -13,6 +13,10 @@ ANTORA_FILE: str = "docs/antora.yml"
 logger: logging.Logger = utils.setup_logger(__name__)
 
 def get_beta_suffix(version: str) -> str:
+    """
+    Returns the BETA version from release version. E.g. returns `2` when
+    version is `5.8.0-BETA-2`
+    """
     parsed = parse(version)
     if parsed.pre and parsed.pre[0] == 'b':
         return f"BETA-{parsed.pre[1]}"
@@ -20,7 +24,9 @@ def get_beta_suffix(version: str) -> str:
 
 def log_inputs(release_ver: str, rel_major_minor: str, master_version: str, master_major_minor: str,
                is_latest_stable_release: str, is_beta_release: str, is_rel_major_minor: str) -> None:
-
+    """
+    Helper function to log script inputs when debugging
+    """
     logger.debug(inspect.cleandoc(f"""
         update_antora Inputs:
         ---------------------
@@ -28,14 +34,17 @@ def log_inputs(release_ver: str, rel_major_minor: str, master_version: str, mast
         rel_major_minor:          {rel_major_minor}
         master_version:           {master_version}
         master_major_minor:       {master_major_minor}
-        is_latest_stable_release: {is_latest_stable_release}
         is_beta_release:          {is_beta_release}
-        is_rel_major_minor:          {is_rel_major_minor}
+        is_rel_major_minor:       {is_rel_major_minor}
+        is_latest_stable_release: {is_latest_stable_release}
     """))
 
 def resolve_versions(target_version: str, rel_major_minor: str, master_major_minor: str, 
                      is_beta_release: bool, is_rel_major_minor: bool, is_main: bool, data: Any) -> utils.AntoraVersions:
-
+    """
+    Resolves the various versions to set in `antora.yml` in a single place via `AntoraVersions`
+    class
+    """
     antora_versions = utils.AntoraVersions()
     attrs = data['asciidoc']['attributes']
 
@@ -50,7 +59,7 @@ def resolve_versions(target_version: str, rel_major_minor: str, master_major_min
         antora_versions.full_version = target_version
     elif is_beta_release:
         local_clean = target_version.upper().replace("-SNAPSHOT", "")
-        beta_suffix = get_beta_suffix(target_version)
+        beta_suffix = get_beta_suffix(local_clean)
 
         suffix_lower = beta_suffix.lower()
         suffix_upper = beta_suffix.upper()
@@ -67,6 +76,7 @@ def resolve_versions(target_version: str, rel_major_minor: str, master_major_min
         antora_versions.ee_version = target_version
         antora_versions.pop_snapshot = False
     else:
+        # Patch
         antora_versions.version = rel_major_minor
         antora_versions.display_version = rel_major_minor
         antora_versions.minor_version = rel_major_minor
@@ -87,7 +97,10 @@ def resolve_versions(target_version: str, rel_major_minor: str, master_major_min
 
 def process_antora(target_version: str, rel_major_minor: str, master_major_minor: str, 
                    is_beta_release: bool, is_rel_major_minor: bool, is_main: bool) -> None:
-    
+    """
+    Resolves version via `resolve_versions()` and writes the updated versions directly
+    to `docs/antora.yml`
+    """
     yaml: YAML = YAML()
     yaml.preserve_quotes = True
     yaml.indent(mapping=2, sequence=4, offset=2) # required for '- ...' block
@@ -133,6 +146,12 @@ def process_antora(target_version: str, rel_major_minor: str, master_major_minor
 
 def update_release(release_ver: str, rel_major_minor: str, master_major_minor: str, 
                    is_beta_release: bool, is_rel_major_minor: bool) -> None:
+    """
+    Handles `antora.yml` version updates for release branches (BETA and PATCH)
+        1. checkouts new unique PR branch
+        2. updates versions, commits and pushes changes to remote
+        3. finally, creates PR
+    """
 
     # For PATCH release, checkout v/branch directly. When release is MAJOR/MINOR or BETA,
     # use release branch instead, and v/branch is created from release branch during `promote`
@@ -159,7 +178,12 @@ def update_release(release_ver: str, rel_major_minor: str, master_major_minor: s
 
 def update_main(master_version: str, rel_major_minor: str,
                 master_major_minor: str, is_rel_major_minor: bool) -> None:
-
+    """
+    Handles `antora.yml` version updates for `main` branch (i.e. MAJOR.MINOR release)
+        1. checkouts new unique PR branch
+        2. updates versions, commits and pushes changes to remote
+        3. finally, creates PR
+    """
     target_base: str = "main"
     update_branch: str = utils.checkout_branch("antora", target_base)
     
@@ -177,7 +201,9 @@ def update_main(master_version: str, rel_major_minor: str,
 
 def update(release_ver: str, rel_major_minor: str, master_version: str, master_major_minor: str,
            is_latest_stable_release: str, is_beta_release: str, is_rel_major_minor: str) -> None:
-
+    """
+    Entry point to update `antora.yml` versions for `main` and `release` branches
+    """
     r_ver: str = release_ver
     mm_ver: str = rel_major_minor
     m_ver: str = master_version
@@ -204,9 +230,11 @@ def update(release_ver: str, rel_major_minor: str, master_version: str, master_m
         is_rel_major_minor=maj_min
     )
 
-def promote_pull_requests(is_beta_release: str, is_rel_major_minor: str, release_version: str, 
+def merge_pull_requests(is_beta_release: str, is_rel_major_minor: str, release_version: str,
                           master_version: str, rel_major_minor: str) -> None:
-
+    """
+    Merges `main` and `release` PRs creates above
+    """
     beta: bool = is_beta_release == "true"
     maj_min: bool = is_rel_major_minor == "true" and not beta
     patch: bool = is_rel_major_minor == "false" and not beta
@@ -222,7 +250,11 @@ def promote_pull_requests(is_beta_release: str, is_rel_major_minor: str, release
     utils.merge_github_pr(base_branch, release_version)
 
 def create_v_branch(is_beta_release: str, release_version: str, rel_major_minor: str) -> None:
-
+    """
+    Creates `v/branch` from release branch (e.g. `5.8.0` -> `v/5.8` or `5.8.0-BETA-1` -> `5.8-BETA-1`)
+    Once v/branch is created, it automatically appears in docs website. The `release` branch manually delete
+    during post-release tasks
+    """
     v_branch_name = f"v/{rel_major_minor}"
 
     if is_beta_release == "true":
