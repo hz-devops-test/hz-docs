@@ -47,7 +47,6 @@ jobs:
       - name: Checkout `release` branch
         uses: actions/checkout@v7
         with:
-          ref: ${{ env.RELEASE_VERSION }}
           path: ${{ env.RELEASE_VERSION }}
 
       - name: Checkout `main` automation scripts
@@ -56,7 +55,7 @@ jobs:
           path: src-scripts
 
       - name: Get Mono version info
-        id: get-mono-info
+        id: get-mono-version-info
         uses: hazelcast/mono-actions/get-version-info@DI-719-migrate-antora-1
         with:
           release-version: ${{ env.RELEASE_VERSION }}
@@ -92,11 +91,11 @@ jobs:
           )
         env:
           RELEASE_VERSION: ${{ env.RELEASE_VERSION }}
-          REL_MAJOR_MINOR: ${{ steps.get-mono-info.outputs.rel-major-minor }}
-          MASTER_VERSION: ${{ steps.get-mono-info.outputs.master-version }}
-          MASTER_MAJOR_MINOR: ${{ steps.get-mono-info.outputs.master-major-minor }}
-          IS_LATEST_STABLE_RELEASE: ${{ steps.get-mono-info.outputs.is-latest-stable-release }}
-          IS_BETA_RELEASE: ${{ steps.get-mono-info.outputs.is-beta-release }}
-          IS_REL_MAJOR_MINOR: ${{ steps.get-mono-info.outputs.is-rel-major-minor }}
+          REL_MAJOR_MINOR: ${{ steps.get-mono-version-info.outputs.rel-major-minor }}
+          MASTER_VERSION: ${{ steps.get-mono-version-info.outputs.master-version }}
+          MASTER_MAJOR_MINOR: ${{ steps.get-mono-version-info.outputs.master-major-minor }}
+          IS_LATEST_STABLE_RELEASE: ${{ steps.get-mono-version-info.outputs.is-latest-stable-release }}
+          IS_BETA_RELEASE: ${{ steps.get-mono-version-info.outputs.is-beta-release }}
+          IS_REL_MAJOR_MINOR: ${{ steps.get-mono-version-info.outputs.is-rel-major-minor }}
           PYTHONPATH: ${{ github.workspace }}/src-scripts/.github/scripts
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
