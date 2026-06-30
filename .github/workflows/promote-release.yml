@@ -100,18 +100,13 @@ jobs:
         working-directory: ${{ env.RELEASE_VERSION }}
         run: |
           from os import getenv
-          import antora_utils as utils
+          import antora_updater as updater
 
-          rel_major_minor = getenv("REL_MAJOR_MINOR")
-          release_version = getenv("RELEASE_VERSION")
-          v_branch_name = f"v/{rel_major_minor}"
-
-          if getenv("IS_BETA_RELEASE") == "true":
-              beta_number = release_version.split("-BETA-")[1]
-              v_branch_name = f"v/{rel_major_minor}-BETA-{beta_number}"
-
-          utils.git_checkout_remote(v_branch_name, release_version)
-          utils.git_push_remote(v_branch_name)
+          updater.create_v_branch(
+              is_beta_release=getenv("IS_BETA_RELEASE"),
+              release_version=getenv("RELEASE_VERSION"),
+              rel_major_minor=getenv("REL_MAJOR_MINOR")
+          )
         env:
           REL_MAJOR_MINOR: ${{ steps.get-mono-version-info.outputs.rel-major-minor }}
           IS_BETA_RELEASE: ${{ steps.get-mono-version-info.outputs.is-beta-release }}

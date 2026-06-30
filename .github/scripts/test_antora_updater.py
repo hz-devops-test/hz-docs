@@ -296,5 +296,27 @@ nav:
         )
         mock_merge.assert_called_once_with("v/5.8", "5.8.1")
 
+    @patch("antora_utils.git_push_remote")
+    @patch("antora_utils.git_checkout_remote")
+    def test_create_v_branch_standard(self, mock_checkout, mock_push) -> None:
+        antora.create_v_branch(
+            is_beta_release="false",
+            release_version="5.8.0",
+            rel_major_minor="5.8"
+        )
+        mock_checkout.assert_called_once_with("v/5.8", "5.8.0")
+        mock_push.assert_called_once_with("v/5.8")
+
+    @patch("antora_utils.git_push_remote")
+    @patch("antora_utils.git_checkout_remote")
+    def test_create_v_branch_beta(self, mock_checkout, mock_push) -> None:
+        antora.create_v_branch(
+            is_beta_release="true",
+            release_version="5.8.0-BETA-1",
+            rel_major_minor="5.8"
+        )
+        mock_checkout.assert_called_once_with("v/5.8-BETA-1", "5.8.0-BETA-1")
+        mock_push.assert_called_once_with("v/5.8-BETA-1")
+
 if __name__ == "__main__":
     unittest.main(testRunner=unittest.TextTestRunner(verbosity=2))

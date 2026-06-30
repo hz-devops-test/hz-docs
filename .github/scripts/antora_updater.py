@@ -5,11 +5,18 @@ import logging
 import inspect
 from typing import Any
 from ruamel.yaml import YAML
+from packaging.version import parse
 import antora_utils as utils
 
 ANTORA_FILE: str = "docs/antora.yml"
 
 logger: logging.Logger = utils.setup_logger(__name__)
+
+def get_beta_suffix(version: str) -> str:
+    parsed = parse(version)
+    if parsed.pre and parsed.pre[0] == 'b':
+        return f"BETA-{parsed.pre[1]}"
+    return ""
 
 def log_inputs(release_ver: str, rel_major_minor: str, master_version: str, master_major_minor: str,
                is_latest_stable_release: str, is_beta_release: str, is_rel_major_minor: str) -> None:
@@ -23,7 +30,7 @@ def log_inputs(release_ver: str, rel_major_minor: str, master_version: str, mast
         master_major_minor:       {master_major_minor}
         is_latest_stable_release: {is_latest_stable_release}
         is_beta_release:          {is_beta_release}
-        is_rel_major_minor:       {is_rel_major_minor}
+        is_rel_major_minor:          {is_rel_major_minor}
     """))
 
 def resolve_versions(target_version: str, rel_major_minor: str, master_major_minor: str, 
@@ -43,7 +50,7 @@ def resolve_versions(target_version: str, rel_major_minor: str, master_major_min
         antora_versions.full_version = target_version
     elif is_beta_release:
         local_clean = target_version.upper().replace("-SNAPSHOT", "")
-        beta_suffix = local_clean.split("-", 1)[1]
+        beta_suffix = get_beta_suffix(target_version)
 
         suffix_lower = beta_suffix.lower()
         suffix_upper = beta_suffix.upper()
@@ -170,7 +177,7 @@ def update_main(master_version: str, rel_major_minor: str,
 
 def update(release_ver: str, rel_major_minor: str, master_version: str, master_major_minor: str,
            is_latest_stable_release: str, is_beta_release: str, is_rel_major_minor: str) -> None:
-    
+
     r_ver: str = release_ver
     mm_ver: str = rel_major_minor
     m_ver: str = master_version
@@ -206,4 +213,20 @@ def promote_pull_requests(is_beta_release: str, is_rel_major_minor: str, release
     if maj_min:
         utils.merge_github_pr("main", master_version)
 
-    utils.merge_github_pr(release_version, release_version)
+    if not maj_min:
+        base_branch = f"v/{rel_major_minor}"
+    else:
+        base_branch = release_version
+
+    utils.merge_github_pr(base_branch, release_version)
+
+def create_v_branch(is_beta_release: str, release_version: str, rel_major_minor: str) -> None:
+
+    v_branch_name = f"v/{rel_major_minor}"
+
+    if is_beta_release.lower() == "true":
+        beta_suffix = get_beta_suffix(release_version)
+        v_branch_name = f"v/{rel_major_minor}-{beta_suffix}"
+
+    utils.git_checkout_remote(v_branch_name, release_version)
+    utils.git_push_remote(v_branch_name)
