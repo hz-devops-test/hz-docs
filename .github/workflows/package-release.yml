@@ -65,7 +65,7 @@ jobs:
           aws-role-to-assume: ${{ vars.AWS_HAZELCAST_OIDC_GITHUB_ACTIONS_ROLE_ARN }}
 
       - name: Install ruamel.yaml
-        run: python3 -m pip install ruamel.yaml --break-system-packages
+        run: python3 -m pip install ruamel.yaml packaging
 
       - name: Configure git
         working-directory: ${{ env.RELEASE_VERSION }}

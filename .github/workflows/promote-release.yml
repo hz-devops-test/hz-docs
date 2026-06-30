@@ -64,7 +64,7 @@ jobs:
           skip-set-mc-version: true
 
       - name: Install ruamel.yaml
-        run: python3 -m pip install ruamel.yaml
+        run: python3 -m pip install ruamel.yaml packaging
 
       - name: Configure Git Identity
         working-directory: ${{ env.RELEASE_VERSION }}
