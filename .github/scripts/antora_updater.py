@@ -197,7 +197,8 @@ def update(release_ver: str, rel_major_minor: str, master_version: str, master_m
         is_rel_major_minor=maj_min
     )
 
-def promote_pull_requests(is_beta_release: str, is_rel_major_minor: str, release_version: str, master_version: str, rel_major_minor: str) -> None:
+def promote_pull_requests(is_beta_release: str, is_rel_major_minor: str, release_version: str, 
+                          master_version: str, rel_major_minor: str) -> None:
 
     beta: bool = is_beta_release.lower() == "true"
     maj_min: bool = is_rel_major_minor.lower() == "true" and not beta
@@ -205,9 +206,4 @@ def promote_pull_requests(is_beta_release: str, is_rel_major_minor: str, release
     if maj_min:
         utils.merge_github_pr("main", master_version)
 
-    if not maj_min:
-        base_branch = f"v/{rel_major_minor}"
-    else:
-        base_branch = release_version
-
-    utils.merge_github_pr(base_branch, release_version)
+    utils.merge_github_pr(release_version, release_version)
