@@ -11,8 +11,24 @@ ANTORA_FILE: str = "docs/antora.yml"
 
 logger: logging.Logger = utils.setup_logger(__name__)
 
+def log_inputs(release_ver: str, rel_major_minor: str, master_version: str, master_major_minor: str,
+               is_latest_stable_release: str, is_beta_release: str, is_rel_major_minor: str) -> None:
+
+    logger.debug(inspect.cleandoc(f"""
+        update_antora Inputs:
+        ---------------------
+        release_ver:              {release_ver}
+        rel_major_minor:          {rel_major_minor}
+        master_version:           {master_version}
+        master_major_minor:       {master_major_minor}
+        is_latest_stable_release: {is_latest_stable_release}
+        is_beta_release:          {is_beta_release}
+        is_rel_major_minor:          {is_rel_major_minor}
+    """))
+
 def resolve_versions(target_version: str, rel_major_minor: str, master_major_minor: str, 
                      is_beta_release: bool, is_rel_major_minor: bool, is_main: bool, data: Any) -> utils.AntoraVersions:
+
     antora_versions = utils.AntoraVersions()
     attrs = data['asciidoc']['attributes']
 
@@ -67,7 +83,7 @@ def process_antora(target_version: str, rel_major_minor: str, master_major_minor
     
     yaml: YAML = YAML()
     yaml.preserve_quotes = True
-    yaml.indent(mapping=2, sequence=4, offset=2)
+    yaml.indent(mapping=2, sequence=4, offset=2) # required for '- ...' block
     yaml.width = 4096
     
     with open(ANTORA_FILE, 'r') as f:
@@ -110,6 +126,7 @@ def process_antora(target_version: str, rel_major_minor: str, master_major_minor
 
 def update_release(release_ver: str, rel_major_minor: str, master_major_minor: str, 
                    is_beta_release: bool, is_rel_major_minor: bool) -> None:
+
     # For PATCH release, checkout v/branch directly. When release is MAJOR/MINOR or BETA,
     # use release branch instead, and v/branch is created from release branch during `promote`
     # phase. This is necessary to prevent premature docs 'live' publishing via v/branch (website
@@ -133,10 +150,8 @@ def update_release(release_ver: str, rel_major_minor: str, master_major_minor: s
     utils.commit_changes(target_base, release_ver, ANTORA_FILE, update_branch)
     utils.create_github_pr(target_base, update_branch, release_ver)
 
-def update_main(release_ver: str, master_version: str, rel_major_minor: str, master_major_minor: str,
-                is_latest_stable_release: bool, is_rel_major_minor: bool) -> None:
-    if not is_rel_major_minor or not is_latest_stable_release:
-        return
+def update_main(master_version: str, rel_major_minor: str,
+                master_major_minor: str, is_rel_major_minor: bool) -> None:
 
     target_base: str = "main"
     update_branch: str = utils.checkout_branch("antora", target_base)
@@ -153,20 +168,6 @@ def update_main(release_ver: str, master_version: str, rel_major_minor: str, mas
     utils.commit_changes(target_base, master_version, ANTORA_FILE, update_branch)
     utils.create_github_pr(target_base, update_branch, master_version)
 
-def log_inputs(release_ver: str, rel_major_minor: str, master_version: str, master_major_minor: str,
-               is_latest_stable_release: str, is_beta_release: str, is_rel_major_minor: str) -> None:
-    logger.debug(inspect.cleandoc(f"""
-        update_antora Inputs:
-        ---------------------
-        release_ver:              {release_ver}
-        rel_major_minor:          {rel_major_minor}
-        master_version:           {master_version}
-        master_major_minor:       {master_major_minor}
-        is_latest_stable_release: {is_latest_stable_release}
-        is_beta_release:          {is_beta_release}
-        is_rel_major_minor:          {is_rel_major_minor}
-    """))
-
 def update(release_ver: str, rel_major_minor: str, master_version: str, master_major_minor: str,
            is_latest_stable_release: str, is_beta_release: str, is_rel_major_minor: str) -> None:
     
@@ -176,17 +177,15 @@ def update(release_ver: str, rel_major_minor: str, master_version: str, master_m
     m_mm_ver: str = master_major_minor
     stable: bool = is_latest_stable_release.lower() == "true"
     beta: bool = is_beta_release.lower() == "true"
-    maj_min: bool = is_rel_major_minor.lower() == "true"
+    maj_min: bool = is_rel_major_minor.lower() == "true" and not beta
 
     log_inputs(r_ver, mm_ver, m_ver, m_mm_ver, is_latest_stable_release, is_beta_release, is_rel_major_minor)
 
-    if maj_min and not beta:
+    if maj_min and stable:
         update_main(
-            release_ver=r_ver,
             master_version=m_ver,
             rel_major_minor=mm_ver,
             master_major_minor=m_mm_ver,
-            is_latest_stable_release=stable,
             is_rel_major_minor=maj_min
         )
 

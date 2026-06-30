@@ -79,22 +79,27 @@ jobs:
           from os import getenv
           import antora_utils as utils
 
-          # Extract tracking parameters from step context
-          is_rel_major_minor = getenv("IS_REL_MAJOR_MINOR") == "true"
           is_beta = getenv("IS_BETA_RELEASE") == "true"
+          is_rel_major_minor = getenv("IS_REL_MAJOR_MINOR") == "true" and not is_beta
           release_ver = getenv("RELEASE_VERSION")
           master_version = getenv("MASTER_VERSION")
+          rel_major_minor = getenv("REL_MAJOR_MINOR")
 
-          # Only merge main branch PR if major.minor and not a beta release
-          if is_rel_major_minor and not is_beta:
+          if is_rel_major_minor:
               utils.merge_github_pr("main", master_version)
 
+          if not is_rel_major_minor:
+              base_branch = f"v/{rel_major_minor}"
+          else:
+              base_branch = release_ver
+
           # Always merge release branch PR
-          utils.merge_github_pr(release_ver, release_ver)
+          utils.merge_github_pr(base_branch, release_ver)
         env:
           IS_REL_MAJOR_MINOR: ${{ steps.get-mono-version-info.outputs.is-rel-major-minor }}
           IS_BETA_RELEASE: ${{ steps.get-mono-version-info.outputs.is-beta-release }}
           MASTER_VERSION: ${{ steps.get-mono-version-info.outputs.master-version }}
+          REL_MAJOR_MINOR: ${{ steps.get-mono-version-info.outputs.rel-major-minor }}
           PYTHONPATH: ${{ github.workspace }}/src-scripts/.github/scripts
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
 

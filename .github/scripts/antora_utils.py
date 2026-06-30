@@ -20,6 +20,7 @@ class AntoraVersions:
         self.pop_snapshot: bool = False
 
 def run_command(command: list) -> str:
+
     try:
         result = subprocess.run(command, capture_output=True, text=True, check=True)
         return result.stdout.strip()
@@ -31,6 +32,7 @@ def get_pr_title(base_branch: str, version: str) -> str:
     return f"Update branch {base_branch} to {version}"
 
 def git_checkout_remote(local_branch: str, remote_branch: str) -> None:
+
     run_command([
         "git", "fetch",
         "origin", remote_branch
@@ -42,12 +44,14 @@ def git_checkout_remote(local_branch: str, remote_branch: str) -> None:
     ])
 
 def checkout_branch(prefix: str, branch: str) -> str:
+
     timestamp = datetime.now().strftime("%d%m%Y%H%M%S")
     update_branch = f"update_{prefix}_{branch}_{timestamp}"
     git_checkout_remote(update_branch, branch)
     return update_branch
 
 def git_push_remote(branch_name: str) -> None:
+
     run_command([
         "git", "push",
         "origin",
@@ -55,6 +59,7 @@ def git_push_remote(branch_name: str) -> None:
     ])
 
 def commit_changes(base_branch: str, version: str, file_path: str, active_branch: str) -> None:
+
     run_command([
         "git", "add",
         file_path
@@ -66,6 +71,7 @@ def commit_changes(base_branch: str, version: str, file_path: str, active_branch
     git_push_remote(active_branch)
 
 def create_github_pr(base_branch: str, head_branch: str, version: str) -> None:
+
     title = get_pr_title(base_branch, version)
     server_url = os.environ["GITHUB_SERVER_URL"]
     repository = os.environ["GITHUB_REPOSITORY"]
@@ -81,6 +87,7 @@ def create_github_pr(base_branch: str, head_branch: str, version: str) -> None:
     ])
 
 def merge_github_pr(base_branch: str, version: str) -> None:
+
     target_title = get_pr_title(base_branch, version)
     pr_list_output = run_command([
         "gh", "search", "prs",
@@ -112,11 +119,13 @@ def merge_github_pr(base_branch: str, version: str) -> None:
         raise RuntimeError(f"Failed to merge PR #{pr_number}: {e}")
 
 def print_yaml_content(data: Any, yaml_processor: YAML, file_path: str, pipe_logger: logging.Logger) -> None:
+
     if pipe_logger.isEnabledFor(logging.DEBUG):
         pipe_logger.debug(f"Updated content of {file_path}:")
         yaml_processor.dump(data, sys.stdout)
 
 def setup_logger(name: str = __name__) -> logging.Logger:
+
     if os.environ.get("RUNNER_DEBUG") == "1":
         current_level = logging.DEBUG
     else:
