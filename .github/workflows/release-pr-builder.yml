@@ -26,9 +26,8 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Install dependencies
-        run: |
-          python3 -m pip install ruamel.yaml --break-system-packages
+      - name: Install ruamel.yaml
+        run: python3 -m pip install ruamel.yaml packaging
 
       - name: Run unit tests
         run: |
