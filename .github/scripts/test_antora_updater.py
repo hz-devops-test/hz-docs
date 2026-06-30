@@ -283,7 +283,7 @@ nav:
             master_version="5.8.0-SNAPSHOT",
             rel_major_minor="5.8"
         )
-        mock_merge.assert_called_once_with("v/5.8", "5.8.0-BETA-1")
+        mock_merge.assert_called_once_with("5.8.0-BETA-1", "5.8.0-BETA-1")
 
     @patch("antora_utils.merge_github_pr")
     def test_promote_pull_requests_patch(self, mock_merge) -> None:

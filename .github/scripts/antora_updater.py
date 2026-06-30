@@ -67,7 +67,7 @@ def resolve_versions(target_version: str, rel_major_minor: str, master_major_min
         antora_versions.ee_version = target_version
         antora_versions.pop_snapshot = False
     else:
-        antora_versions.version = rel_major_minor.lower()
+        antora_versions.version = rel_major_minor
         antora_versions.display_version = rel_major_minor
         antora_versions.minor_version = rel_major_minor
         antora_versions.attr_version = rel_major_minor
@@ -182,9 +182,9 @@ def update(release_ver: str, rel_major_minor: str, master_version: str, master_m
     mm_ver: str = rel_major_minor
     m_ver: str = master_version
     m_mm_ver: str = master_major_minor
-    stable: bool = is_latest_stable_release.lower() == "true"
-    beta: bool = is_beta_release.lower() == "true"
-    maj_min: bool = is_rel_major_minor.lower() == "true" and not beta
+    stable: bool = is_latest_stable_release == "true"
+    beta: bool = is_beta_release == "true"
+    maj_min: bool = is_rel_major_minor == "true" and not beta
 
     log_inputs(r_ver, mm_ver, m_ver, m_mm_ver, is_latest_stable_release, is_beta_release, is_rel_major_minor)
 
@@ -207,13 +207,14 @@ def update(release_ver: str, rel_major_minor: str, master_version: str, master_m
 def promote_pull_requests(is_beta_release: str, is_rel_major_minor: str, release_version: str, 
                           master_version: str, rel_major_minor: str) -> None:
 
-    beta: bool = is_beta_release.lower() == "true"
-    maj_min: bool = is_rel_major_minor.lower() == "true" and not beta
+    beta: bool = is_beta_release == "true"
+    maj_min: bool = is_rel_major_minor == "true" and not beta
+    patch: bool = is_rel_major_minor == "false" and not beta
 
     if maj_min:
         utils.merge_github_pr("main", master_version)
 
-    if not maj_min:
+    if patch:
         base_branch = f"v/{rel_major_minor}"
     else:
         base_branch = release_version
@@ -224,7 +225,7 @@ def create_v_branch(is_beta_release: str, release_version: str, rel_major_minor:
 
     v_branch_name = f"v/{rel_major_minor}"
 
-    if is_beta_release.lower() == "true":
+    if is_beta_release == "true":
         beta_suffix = get_beta_suffix(release_version)
         v_branch_name = f"v/{rel_major_minor}-{beta_suffix}"
 
