@@ -1,15 +1,20 @@
-name: Run Python unit tests
+name: Run release unit tests
 
 on:
   pull_request:
     branches:
       - main
-    # This allows the workflow to trigger for draft PRs and updates
-    types: [opened, synchronize, reopened, ready_for_review]
+    types: [opened, synchronize]
+    paths:
+      - '.github/scripts/**'
+      - '.github/workflows/package-release.yml'
+      - '.github/workflows/promote-release.yml'
   workflow_dispatch:
 
 jobs:
   test:
+    # Ignore automated release PR branches
+    if: ${{ !startsWith(github.head_ref, 'update_antora_') }}
     runs-on: ubuntu-latest
 
     steps:
@@ -21,10 +26,9 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Install dependencies
-        run: |
-          python3 -m pip install ruamel.yaml --break-system-packages
+      - name: Install ruamel.yaml
+        run: python3 -m pip install ruamel.yaml packaging
 
       - name: Run unit tests
         run: |
-          python3 .github/scripts/test_antora_updater.py
+          python3 -m unittest discover -s .github/scripts -p "test_*.py"
