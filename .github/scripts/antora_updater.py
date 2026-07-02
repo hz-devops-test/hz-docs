@@ -1,8 +1,5 @@
 #!/usr/bin/env python3
-import os
-import sys
 import logging
-import inspect
 from typing import Any
 from ruamel.yaml import YAML
 from packaging.version import parse
