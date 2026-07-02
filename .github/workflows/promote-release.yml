@@ -43,8 +43,9 @@ jobs:
       name: ${{ inputs.ENVIRONMENT }}
       deployment: false
     permissions:
-      contents: write
+      contents: read
       pull-requests: write
+      id-token: write
     env:
       RELEASE_VERSION: ${{ inputs.VERSION }}
     steps:
