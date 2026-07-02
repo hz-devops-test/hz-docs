@@ -127,7 +127,8 @@ nav:
             master_major_minor="5.9",
             is_latest_stable_release="true",
             is_beta_release="false",
-            is_rel_major_minor="true"
+            is_rel_major_minor="true",
+            is_patch="false"
         )
         
         self.assertEqual(len(simulator.history), 2)
@@ -162,7 +163,8 @@ nav:
             master_major_minor="5.9",
             is_latest_stable_release="true",
             is_beta_release="false",
-            is_rel_major_minor="true"
+            is_rel_major_minor="true",
+            is_patch="false"
         )
         
         self.assertEqual(len(simulator.history), 2)
@@ -191,7 +193,8 @@ nav:
             master_major_minor="5.8",
             is_latest_stable_release="false",
             is_beta_release="true",
-            is_rel_major_minor="true"
+            is_rel_major_minor="true",
+            is_patch="false"
         )
         
         mock_checkout.assert_called_once_with("antora", "5.8.0-BETA-1")
@@ -205,6 +208,7 @@ nav:
         self.assertEqual(beta_data["asciidoc"]["attributes"]["minor-version"], "5.8-beta-1")
         self.assertEqual(beta_data["asciidoc"]["attributes"]["version"], "5.8-beta-1")
         self.assert_untouched_properties(beta_data)
+
 
     @patch("antora_utils.print_yaml_content")
     @patch("builtins.open")
@@ -223,7 +227,8 @@ nav:
             master_major_minor="5.9",
             is_latest_stable_release="true",
             is_beta_release="false",
-            is_rel_major_minor="false"
+            is_rel_major_minor="false",
+            is_patch="true"
         )
         
         mock_checkout.assert_called_once_with("antora", "v/5.8")
@@ -250,7 +255,8 @@ nav:
             master_major_minor="5.9",
             is_latest_stable_release="false",
             is_beta_release="false",
-            is_rel_major_minor="false"
+            is_rel_major_minor="false",
+            is_patch="true"
         )
         
         mock_checkout.assert_called_once_with("antora", "v/5.8")
@@ -265,6 +271,7 @@ nav:
         antora.merge_pull_requests(
             is_beta_release="false",
             is_rel_major_minor="true",
+            is_patch="false",
             release_version="5.8.0",
             master_version="5.9.0-SNAPSHOT",
             rel_major_minor="5.8"
@@ -278,7 +285,8 @@ nav:
     def test_merge_pull_requests_beta(self, mock_merge) -> None:
         antora.merge_pull_requests(
             is_beta_release="true",
-            is_rel_major_minor="true",
+            is_rel_major_minor="false", 
+            is_patch="false",
             release_version="5.8.0-BETA-1",
             master_version="5.8.0-SNAPSHOT",
             rel_major_minor="5.8"
@@ -290,6 +298,7 @@ nav:
         antora.merge_pull_requests(
             is_beta_release="false",
             is_rel_major_minor="false",
+            is_patch="true",
             release_version="5.8.1",
             master_version="5.9.0-SNAPSHOT",
             rel_major_minor="5.8"
@@ -300,9 +309,10 @@ nav:
     @patch("antora_utils.git_checkout_remote")
     def test_create_v_branch_standard(self, mock_checkout, mock_push) -> None:
         antora.create_v_branch(
-            is_beta_release="false",
             release_version="5.8.0",
-            rel_major_minor="5.8"
+            rel_major_minor="5.8",
+            is_beta_release="false",
+            is_patch="false"
         )
         mock_checkout.assert_called_once_with("v/5.8", "5.8.0")
         mock_push.assert_called_once_with("v/5.8")
@@ -311,12 +321,25 @@ nav:
     @patch("antora_utils.git_checkout_remote")
     def test_create_v_branch_beta(self, mock_checkout, mock_push) -> None:
         antora.create_v_branch(
-            is_beta_release="true",
             release_version="5.8.0-BETA-1",
-            rel_major_minor="5.8"
+            rel_major_minor="5.8",
+            is_beta_release="true",
+            is_patch="false"
         )
         mock_checkout.assert_called_once_with("v/5.8-BETA-1", "5.8.0-BETA-1")
         mock_push.assert_called_once_with("v/5.8-BETA-1")
+
+    @patch("antora_utils.git_push_remote")
+    @patch("antora_utils.git_checkout_remote")
+    def test_create_v_branch_patch(self, mock_checkout, mock_push) -> None:
+        antora.create_v_branch(
+            release_version="5.8.1",
+            rel_major_minor="5.8",
+            is_beta_release="false",
+            is_patch="true"
+        )
+        mock_checkout.assert_not_called()
+        mock_push.assert_not_called()
 
 if __name__ == "__main__":
     unittest.main(testRunner=unittest.TextTestRunner(verbosity=2))

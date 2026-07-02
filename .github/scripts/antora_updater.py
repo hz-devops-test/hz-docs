@@ -23,7 +23,7 @@ def get_beta_suffix(version: str) -> str:
     return ""
 
 def log_inputs(release_ver: str, rel_major_minor: str, master_version: str, master_major_minor: str,
-               is_latest_stable_release: str, is_beta_release: str, is_rel_major_minor: str) -> None:
+               is_latest_stable_release: str, is_beta_release: str, is_rel_major_minor: str, is_patch: str) -> None:
     """
     Helper function to log script inputs when debugging
     """
@@ -37,6 +37,7 @@ def log_inputs(release_ver: str, rel_major_minor: str, master_version: str, mast
         is_beta_release:          {is_beta_release}
         is_rel_major_minor:       {is_rel_major_minor}
         is_latest_stable_release: {is_latest_stable_release}
+        is_patch:                 {is_patch}
     """))
 
 def resolve_versions(target_version: str, rel_major_minor: str, master_major_minor: str, 
@@ -145,7 +146,7 @@ def process_antora(target_version: str, rel_major_minor: str, master_major_minor
     utils.print_yaml_content(data, yaml, ANTORA_FILE, logger)
 
 def update_release(release_ver: str, rel_major_minor: str, master_major_minor: str, 
-                   is_beta_release: bool, is_rel_major_minor: bool) -> None:
+                   is_beta_release: bool, is_rel_major_minor: bool, is_patch: bool) -> None:
     """
     Handles `antora.yml` version updates for release branches (BETA and PATCH)
         1. checkouts new unique PR branch
@@ -157,7 +158,7 @@ def update_release(release_ver: str, rel_major_minor: str, master_major_minor: s
     # use release branch instead, and v/branch is created from release branch during `promote`
     # phase. This is necessary to prevent premature docs 'live' publishing via v/branch (website
     # auto publishes from v/branch)
-    if not is_rel_major_minor and not is_beta_release:
+    if is_patch:
         target_base = f"v/{rel_major_minor}"
     else:
         target_base = release_ver
@@ -200,44 +201,50 @@ def update_main(master_version: str, rel_major_minor: str,
     utils.create_github_pr(target_base, update_branch, master_version)
 
 def update(release_ver: str, rel_major_minor: str, master_version: str, master_major_minor: str,
-           is_latest_stable_release: str, is_beta_release: str, is_rel_major_minor: str) -> None:
+           is_latest_stable_release: str, is_beta_release: str, is_rel_major_minor: str, is_patch: str) -> None:
     """
     Entry point to update `antora.yml` versions for `main` and `release` branches
     """
-    r_ver: str = release_ver
-    mm_ver: str = rel_major_minor
-    m_ver: str = master_version
-    m_mm_ver: str = master_major_minor
-    stable: bool = is_latest_stable_release == "true"
-    beta: bool = is_beta_release == "true"
-    maj_min: bool = is_rel_major_minor == "true" and not beta
+    log_inputs(
+        release_ver,
+        rel_major_minor,
+        master_version,
+        master_major_minor,
+        is_latest_stable_release,
+        is_beta_release,
+        is_rel_major_minor,
+        is_patch)
 
-    log_inputs(r_ver, mm_ver, m_ver, m_mm_ver, is_latest_stable_release, is_beta_release, is_rel_major_minor)
+    is_patch_bool: bool = is_patch == "true"
+    is_beta_bool: bool = is_beta_release == "true"
+    is_rel_mm_bool: bool = is_rel_major_minor == "true"
+    is_latest_stable_bool: bool = is_latest_stable_release == "true"
 
-    if maj_min and stable:
+    if is_rel_mm_bool and is_latest_stable_bool:
         update_main(
-            master_version=m_ver,
-            rel_major_minor=mm_ver,
-            master_major_minor=m_mm_ver,
-            is_rel_major_minor=maj_min
+            master_version=master_version,
+            rel_major_minor=rel_major_minor,
+            master_major_minor=master_major_minor,
+            is_rel_major_minor=is_rel_mm_bool
         )
 
     update_release(
-        release_ver=r_ver,
-        rel_major_minor=mm_ver,
-        master_major_minor=m_mm_ver,
-        is_beta_release=beta,
-        is_rel_major_minor=maj_min
+        release_ver=release_ver,
+        rel_major_minor=rel_major_minor,
+        master_major_minor=master_major_minor,
+        is_beta_release=is_beta_bool,
+        is_rel_major_minor=is_rel_mm_bool,
+        is_patch=is_patch_bool
     )
 
-def merge_pull_requests(is_beta_release: str, is_rel_major_minor: str, release_version: str,
-                          master_version: str, rel_major_minor: str) -> None:
+def merge_pull_requests(is_beta_release: str, is_rel_major_minor: str, is_patch: str, release_version: str,
+                        master_version: str, rel_major_minor: str) -> None:
     """
-    Merges `main` and `release` PRs creates above
+    Merges `main` and `release` PRs
     """
     beta: bool = is_beta_release == "true"
-    maj_min: bool = is_rel_major_minor == "true" and not beta
-    patch: bool = is_rel_major_minor == "false" and not beta
+    maj_min: bool = is_rel_major_minor == "true"
+    patch: bool = is_patch == "true"
 
     if maj_min:
         utils.merge_github_pr("main", master_version)
@@ -249,12 +256,17 @@ def merge_pull_requests(is_beta_release: str, is_rel_major_minor: str, release_v
 
     utils.merge_github_pr(base_branch, release_version)
 
-def create_v_branch(is_beta_release: str, release_version: str, rel_major_minor: str) -> None:
+def create_v_branch(release_version: str, rel_major_minor: str, is_beta_release: str, is_patch: str) -> None:
     """
     Creates `v/branch` from release branch (e.g. `5.8.0` -> `v/5.8` or `5.8.0-BETA-1` -> `5.8-BETA-1`)
     Once v/branch is created, it automatically appears in docs website. The `release` branch manually delete
     during post-release tasks
     """
+
+    # Patch v/branch should already exist
+    if is_patch == "true":
+        return
+
     v_branch_name = f"v/{rel_major_minor}"
 
     if is_beta_release == "true":
@@ -263,3 +275,5 @@ def create_v_branch(is_beta_release: str, release_version: str, rel_major_minor:
 
     utils.git_checkout_remote(v_branch_name, release_version)
     utils.git_push_remote(v_branch_name)
+
+
