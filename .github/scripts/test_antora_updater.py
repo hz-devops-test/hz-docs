@@ -21,7 +21,6 @@ class DynamicFileSimulator:
     def open_stream(self, file_path: str, mode: str):
         return VirtualFileContext(self, mode)
 
-
 class VirtualFileContext:
     """
     Simulates text/binary file stream behaviors.
@@ -128,7 +127,7 @@ nav:
             is_latest_stable_release="true",
             is_beta_release="false",
             is_rel_major_minor="true",
-            is_patch="false"
+            is_patch_release="false"
         )
         
         self.assertEqual(len(simulator.history), 2)
@@ -164,7 +163,7 @@ nav:
             is_latest_stable_release="true",
             is_beta_release="false",
             is_rel_major_minor="true",
-            is_patch="false"
+            is_patch_release="false"
         )
         
         self.assertEqual(len(simulator.history), 2)
@@ -194,7 +193,7 @@ nav:
             is_latest_stable_release="false",
             is_beta_release="true",
             is_rel_major_minor="true",
-            is_patch="false"
+            is_patch_release="false"
         )
         
         mock_checkout.assert_called_once_with("antora", "5.8.0-BETA-1")
@@ -228,7 +227,7 @@ nav:
             is_latest_stable_release="true",
             is_beta_release="false",
             is_rel_major_minor="false",
-            is_patch="true"
+            is_patch_release="true"
         )
         
         mock_checkout.assert_called_once_with("antora", "v/5.8")
@@ -256,7 +255,7 @@ nav:
             is_latest_stable_release="false",
             is_beta_release="false",
             is_rel_major_minor="false",
-            is_patch="true"
+            is_patch_release="true"
         )
         
         mock_checkout.assert_called_once_with("antora", "v/5.8")
@@ -271,7 +270,7 @@ nav:
         antora.merge_pull_requests(
             is_beta_release="false",
             is_rel_major_minor="true",
-            is_patch="false",
+            is_patch_release="false",
             release_version="5.8.0",
             master_version="5.9.0-SNAPSHOT",
             rel_major_minor="5.8"
@@ -286,7 +285,7 @@ nav:
         antora.merge_pull_requests(
             is_beta_release="true",
             is_rel_major_minor="false", 
-            is_patch="false",
+            is_patch_release="false",
             release_version="5.8.0-BETA-1",
             master_version="5.8.0-SNAPSHOT",
             rel_major_minor="5.8"
@@ -298,7 +297,7 @@ nav:
         antora.merge_pull_requests(
             is_beta_release="false",
             is_rel_major_minor="false",
-            is_patch="true",
+            is_patch_release="true",
             release_version="5.8.1",
             master_version="5.9.0-SNAPSHOT",
             rel_major_minor="5.8"
@@ -312,7 +311,7 @@ nav:
             release_version="5.8.0",
             rel_major_minor="5.8",
             is_beta_release="false",
-            is_patch="false"
+            is_patch_release="false"
         )
         mock_checkout.assert_called_once_with("v/5.8", "5.8.0")
         mock_push.assert_called_once_with("v/5.8")
@@ -324,7 +323,7 @@ nav:
             release_version="5.8.0-BETA-1",
             rel_major_minor="5.8",
             is_beta_release="true",
-            is_patch="false"
+            is_patch_release="false"
         )
         mock_checkout.assert_called_once_with("v/5.8-BETA-1", "5.8.0-BETA-1")
         mock_push.assert_called_once_with("v/5.8-BETA-1")
@@ -336,7 +335,7 @@ nav:
             release_version="5.8.1",
             rel_major_minor="5.8",
             is_beta_release="false",
-            is_patch="true"
+            is_patch_release="true"
         )
         mock_checkout.assert_not_called()
         mock_push.assert_not_called()

@@ -3,6 +3,7 @@ import sys
 import json
 import logging
 import subprocess
+import inspect
 from datetime import datetime
 from typing import Any, Optional
 from ruamel.yaml import YAML
@@ -160,6 +161,24 @@ def setup_logger(name: str = __name__) -> logging.Logger:
         handlers=[logging.StreamHandler(sys.stdout)]
     )
     return logging.getLogger(name)
+
+def log_inputs(release_ver: str, rel_major_minor: str, master_version: str, master_major_minor: str,
+               is_latest_stable_release: str, is_beta_release: str, is_rel_major_minor: str, is_patch: str) -> None:
+    """
+    Helper function to log script inputs when debugging
+    """
+    logger.debug(inspect.cleandoc(f"""
+        update_antora Inputs:
+        ---------------------
+        release_ver:              {release_ver}
+        rel_major_minor:          {rel_major_minor}
+        master_version:           {master_version}
+        master_major_minor:       {master_major_minor}
+        is_beta_release:          {is_beta_release}
+        is_rel_major_minor:       {is_rel_major_minor}
+        is_latest_stable_release: {is_latest_stable_release}
+        is_patch:                 {is_patch}
+    """))
 
 """
 Logger instance for this module

@@ -90,7 +90,7 @@ jobs:
               release_version=getenv("RELEASE_VERSION"),
               master_version=getenv("MASTER_VERSION"),
               rel_major_minor=getenv("REL_MAJOR_MINOR"),
-              is_patch=getenv("IS_PATCH_RELEASE")
+              is_patch_release=getenv("IS_PATCH_RELEASE")
           )
         env:
           MASTER_VERSION: ${{ steps.get-rel-info.outputs.master-version }}
