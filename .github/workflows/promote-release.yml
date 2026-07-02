@@ -43,7 +43,7 @@ jobs:
       name: ${{ inputs.ENVIRONMENT }}
       deployment: false
     permissions:
-      contents: read
+      contents: write
       pull-requests: write
       id-token: write
     env:
