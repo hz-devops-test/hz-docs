@@ -26,6 +26,7 @@ class VirtualFileContext:
     Simulates text/binary file stream behaviors.
     Delivers EOF empty strings on consecutive reads to prevent infinite YAML 
     loops, transparently decodes raw bytes, and commits writes on block exit.
+    Supports seek and truncate operations for r+ block mode scopes.
     """
     def __init__(self, factory: DynamicFileSimulator, mode: str):
         self.factory = factory
@@ -34,7 +35,7 @@ class VirtualFileContext:
         self.local_buffer = []
 
     def read(self, *args, **kwargs) -> str:
-        if "r" in self.mode and not self.read_done:
+        if ("r" in self.mode or "+" in self.mode) and not self.read_done:
             self.read_done = True
             return self.factory.content
         return ""
@@ -44,11 +45,18 @@ class VirtualFileContext:
         self.local_buffer.append(text_chunk)
         return len(data)
 
+    def seek(self, position: int, *args, **kwargs) -> None:
+        if position == 0:
+            self.local_buffer = []
+
+    def truncate(self, *args, **kwargs) -> None:
+        pass
+
     def __enter__(self):
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        if "w" in self.mode and self.local_buffer:
+        if ("w" in self.mode or "+" in self.mode) and self.local_buffer:
             completed_doc = "".join(self.local_buffer)
             self.factory.content = completed_doc
             self.factory.history.append(completed_doc)
@@ -175,6 +183,7 @@ nav:
         self.assertNotIn("snapshot", release_data["asciidoc"]["attributes"])
         self.assert_untouched_properties(release_data)
 
+
     @patch("antora_utils.print_yaml_content")
     @patch("builtins.open")
     @patch("antora_utils.checkout_branch")
@@ -198,7 +207,7 @@ nav:
         
         mock_checkout.assert_called_once_with("antora", "5.8.0-BETA-1")
         self.assertEqual(len(simulator.history), 1)
-        beta_data = self.yaml.load(simulator.history[0])
+        beta_data = self.yaml.load(simulator.history[-1])
         self.assertEqual(beta_data["version"], "5.8-beta-1")
         self.assertEqual(beta_data["display_version"], "5.8-BETA-1")
         self.assertEqual(beta_data["asciidoc"]["attributes"]["full-version"], "5.8.0-BETA-1")
@@ -207,7 +216,6 @@ nav:
         self.assertEqual(beta_data["asciidoc"]["attributes"]["minor-version"], "5.8-beta-1")
         self.assertEqual(beta_data["asciidoc"]["attributes"]["version"], "5.8-beta-1")
         self.assert_untouched_properties(beta_data)
-
 
     @patch("antora_utils.print_yaml_content")
     @patch("builtins.open")
@@ -232,7 +240,7 @@ nav:
         
         mock_checkout.assert_called_once_with("antora", "v/5.8")
         self.assertEqual(len(simulator.history), 1)
-        patch_data = self.yaml.load(simulator.history[0])
+        patch_data = self.yaml.load(simulator.history[-1])
         self.assertEqual(patch_data["asciidoc"]["attributes"]["full-version"], "5.8.1")
         self.assertEqual(patch_data["asciidoc"]["attributes"]["os-version"], "5.8.0")
         self.assert_untouched_properties(patch_data)
@@ -260,7 +268,7 @@ nav:
         
         mock_checkout.assert_called_once_with("antora", "v/5.8")
         self.assertEqual(len(simulator.history), 1)
-        patch_data = self.yaml.load(simulator.history[0])
+        patch_data = self.yaml.load(simulator.history[-1])
         self.assertEqual(patch_data["asciidoc"]["attributes"]["full-version"], "5.8.1")
         self.assertEqual(patch_data["asciidoc"]["attributes"]["os-version"], "5.8.0")
         self.assert_untouched_properties(patch_data)

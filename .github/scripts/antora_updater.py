@@ -19,8 +19,15 @@ def get_beta_suffix(version: str) -> str:
         return f"BETA-{parsed.pre[1]}"
     return ""
 
-def resolve_versions(target_version: str, rel_major_minor: str, master_major_minor: str, 
-                     is_beta_release: bool, is_rel_major_minor: bool, is_main: bool, data: Any) -> utils.AntoraVersions:
+def resolve_versions(
+    target_version:str,
+    rel_major_minor:str,
+    master_major_minor:str,
+    is_beta_release:bool,
+    is_rel_major_minor:bool,
+    is_main:bool,
+    data:Any
+) -> utils.AntoraVersions:
     """
     Resolves the various versions to set in `antora.yml` in a single place via `AntoraVersions`
     class
@@ -75,8 +82,14 @@ def resolve_versions(target_version: str, rel_major_minor: str, master_major_min
 
     return antora_versions
 
-def process_antora(target_version: str, rel_major_minor: str, master_major_minor: str, 
-                   is_beta_release: bool, is_rel_major_minor: bool, is_main: bool) -> None:
+def process_antora(
+    target_version:str,
+    rel_major_minor:str,
+    master_major_minor:str,
+    is_beta_release:bool,
+    is_rel_major_minor:bool,
+    is_main:bool
+) -> None:
     """
     Resolves version via `resolve_versions()` and writes the updated versions directly
     to `docs/antora.yml`
@@ -86,46 +99,52 @@ def process_antora(target_version: str, rel_major_minor: str, master_major_minor
     yaml.indent(mapping=2, sequence=4, offset=2) # required for '- ...' block
     yaml.width = 4096
     
-    with open(ANTORA_FILE, 'r') as f:
+    with open(ANTORA_FILE, 'r+') as f:
         data = yaml.load(f)
+        attrs = data['asciidoc']['attributes']
 
-    attrs = data['asciidoc']['attributes']
+        antora_versions = resolve_versions(
+            target_version=target_version,
+            rel_major_minor=rel_major_minor,
+            master_major_minor=master_major_minor,
+            is_beta_release=is_beta_release,
+            is_rel_major_minor=is_rel_major_minor,
+            is_main=is_main,
+            data=data
+        )
 
-    antora_versions = resolve_versions(
-        target_version=target_version,
-        rel_major_minor=rel_major_minor,
-        master_major_minor=master_major_minor,
-        is_beta_release=is_beta_release,
-        is_rel_major_minor=is_rel_major_minor,
-        is_main=is_main,
-        data=data
-    )
+        data['version'] = antora_versions.version
+        data['display_version'] = antora_versions.display_version
+        attrs['full-version'] = antora_versions.full_version
+        attrs['os-version'] = antora_versions.os_version
+        attrs['ee-version'] = antora_versions.ee_version
 
-    data['version'] = antora_versions.version
-    data['display_version'] = antora_versions.display_version
-    attrs['full-version'] = antora_versions.full_version
-    attrs['os-version'] = antora_versions.os_version
-    attrs['ee-version'] = antora_versions.ee_version
+        if 'minor-version' in attrs or is_main:
+            attrs['minor-version'] = antora_versions.minor_version
 
-    if 'minor-version' in attrs or is_main:
-        attrs['minor-version'] = antora_versions.minor_version
-        
-    if 'version' in attrs or is_main:
-        attrs['version'] = antora_versions.attr_version
+        if 'version' in attrs or is_main:
+            attrs['version'] = antora_versions.attr_version
 
-    if antora_versions.pop_prerelease:
-        data.pop('prerelease', None)
+        if antora_versions.pop_prerelease:
+            data.pop('prerelease', None)
 
-    if antora_versions.pop_snapshot:
-        attrs.pop('snapshot', None)
+        if antora_versions.pop_snapshot:
+            attrs.pop('snapshot', None)
 
-    with open(ANTORA_FILE, 'w') as f:
+        f.seek(0)
         yaml.dump(data, f)
+        f.truncate()
 
     utils.print_yaml_content(data, yaml, ANTORA_FILE, logger)
 
-def update_release(release_ver: str, rel_major_minor: str, master_major_minor: str, 
-                   is_beta_release: bool, is_rel_major_minor: bool, is_patch_release: bool) -> None:
+def update_release(
+    release_ver:str,
+    rel_major_minor:str,
+    master_major_minor:str,
+    is_beta_release:bool,
+    is_rel_major_minor:bool,
+    is_patch_release:bool
+) -> None:
     """
     Handles `antora.yml` version updates for release branches (BETA and PATCH)
         1. checkouts new unique PR branch
@@ -156,8 +175,12 @@ def update_release(release_ver: str, rel_major_minor: str, master_major_minor: s
     utils.commit_changes(target_base, release_ver, ANTORA_FILE, update_branch)
     utils.create_github_pr(target_base, update_branch, release_ver)
 
-def update_main(master_version: str, rel_major_minor: str,
-                master_major_minor: str, is_rel_major_minor: bool) -> None:
+def update_main(
+    master_version:str,
+    rel_major_minor:str,
+    master_major_minor:str,
+    is_rel_major_minor:bool
+) -> None:
     """
     Handles `antora.yml` version updates for `main` branch (i.e. MAJOR.MINOR release)
         1. checkouts new unique PR branch
@@ -179,8 +202,16 @@ def update_main(master_version: str, rel_major_minor: str,
     utils.commit_changes(target_base, master_version, ANTORA_FILE, update_branch)
     utils.create_github_pr(target_base, update_branch, master_version)
 
-def update(release_ver: str, rel_major_minor: str, master_version: str, master_major_minor: str,
-           is_latest_stable_release: str, is_beta_release: str, is_rel_major_minor: str, is_patch_release: str) -> None:
+def update(
+    release_ver:str,
+    rel_major_minor:str,
+    master_version:str,
+    master_major_minor:str,
+    is_latest_stable_release:str,
+    is_beta_release:str,
+    is_rel_major_minor:str,
+    is_patch_release:str
+) -> None:
     """
     Entry point to update `antora.yml` versions for `main` and `release` branches
     """
@@ -216,8 +247,14 @@ def update(release_ver: str, rel_major_minor: str, master_version: str, master_m
         is_patch_release=is_patch
     )
 
-def merge_pull_requests(is_beta_release: str, is_rel_major_minor: str, is_patch_release: str, release_version: str,
-                        master_version: str, rel_major_minor: str) -> None:
+def merge_pull_requests(
+    is_beta_release:str,
+    is_rel_major_minor:str,
+    is_patch_release:str,
+    release_version:str,
+    master_version:str,
+    rel_major_minor:str
+) -> None:
     """
     Merges `main` and `release` PRs
     """
@@ -234,7 +271,12 @@ def merge_pull_requests(is_beta_release: str, is_rel_major_minor: str, is_patch_
 
     utils.merge_github_pr(base_branch, release_version)
 
-def create_v_branch(release_version: str, rel_major_minor: str, is_beta_release: str, is_patch_release: str) -> None:
+def create_v_branch(
+    release_version:str,
+    rel_major_minor:str,
+    is_beta_release:str,
+    is_patch_release:str
+) -> None:
     """
     Creates `v/branch` from release branch (e.g. `5.8.0` -> `v/5.8` or `5.8.0-BETA-1` -> `5.8-BETA-1`)
     Once v/branch is created, it automatically appears in docs website. The `release` branch manually delete
@@ -255,5 +297,3 @@ def create_v_branch(release_version: str, rel_major_minor: str, is_beta_release:
 
     utils.git_checkout_remote(v_branch_name, release_version)
     utils.git_push_remote(v_branch_name)
-
-

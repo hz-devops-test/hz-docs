@@ -20,7 +20,9 @@ class AntoraVersions:
         self.pop_prerelease: bool = False
         self.pop_snapshot: bool = False
 
-def run_command(command: list) -> str:
+def run_command(
+    command:list
+) -> str:
     """
     Runs single command. Emits full command if debug is enabled
     """
@@ -32,13 +34,19 @@ def run_command(command: list) -> str:
         error_message = e.stderr.strip() if e.stderr else str(e)
         raise RuntimeError(f"Command failed: {command}\nError: {error_message}")
 
-def get_pr_title(base_branch: str, version: str) -> str:
+def get_pr_title(
+    base_branch:str,
+    version:str
+) -> str:
     """
     Returns PR title with base/target branch and version
     """
     return f"Update branch {base_branch} to {version}"
 
-def git_checkout_remote(local_branch: str, remote_branch: str) -> None:
+def git_checkout_remote(
+    local_branch:str,
+    remote_branch:str
+) -> None:
     """
     Performs repo `fetch` and `checkout` using `git` cli
     """
@@ -52,7 +60,10 @@ def git_checkout_remote(local_branch: str, remote_branch: str) -> None:
         f"origin/{remote_branch}"
     ])
 
-def checkout_branch(prefix: str, branch: str) -> str:
+def checkout_branch(
+    prefix:str,
+    branch:str
+) -> str:
     """
     Checks out unique PR branch from remote using `git` cli
     """
@@ -61,7 +72,9 @@ def checkout_branch(prefix: str, branch: str) -> str:
     git_checkout_remote(update_branch, branch)
     return update_branch
 
-def git_push_remote(branch_name: str) -> None:
+def git_push_remote(
+    branch_name:str
+) -> None:
     """
     Remote pushes supplied branch using `git` cli
     """
@@ -71,7 +84,12 @@ def git_push_remote(branch_name: str) -> None:
         branch_name
     ])
 
-def commit_changes(base_branch: str, version: str, file_path: str, active_branch: str) -> None:
+def commit_changes(
+    base_branch:str,
+    version:str,
+    file_path:str,
+    active_branch:str
+) -> None:
     """
     Adds/commits local changes and remote pushes `base_branch` using `git` cli
     """
@@ -85,7 +103,11 @@ def commit_changes(base_branch: str, version: str, file_path: str, active_branch
     ])
     git_push_remote(active_branch)
 
-def create_github_pr(base_branch: str, head_branch: str, version: str) -> None:
+def create_github_pr(
+    base_branch:str,
+    head_branch:str,
+    version:str
+) -> None:
     """
     Creates GitHub PR using `gh` cli. Adds link to the current build run ID in the PR body
     """
@@ -103,7 +125,10 @@ def create_github_pr(base_branch: str, head_branch: str, version: str) -> None:
         "--head", head_branch
     ])
 
-def merge_github_pr(base_branch: str, version: str) -> None:
+def merge_github_pr(
+    base_branch:str,
+    version:str
+) -> None:
     """
     Merges pre-existing `Open` GitHub PR using `gh` cli. It searches for the PR and
     `squash` merges the PR. It will error out if more than one PR is found (only one is expected
@@ -139,7 +164,12 @@ def merge_github_pr(base_branch: str, version: str) -> None:
     except Exception as e:
         raise RuntimeError(f"Failed to merge PR #{pr_number}: {e}")
 
-def print_yaml_content(data: Any, yaml_processor: YAML, file_path: str, pipe_logger: logging.Logger) -> None:
+def print_yaml_content(
+    data:Any,
+    yaml_processor:YAML,
+    file_path:str,
+    pipe_logger:logging.Logger
+) -> None:
     """
     Debug prints `antora.yml` versions after update
     """
@@ -147,7 +177,9 @@ def print_yaml_content(data: Any, yaml_processor: YAML, file_path: str, pipe_log
         pipe_logger.debug(f"Updated content of {file_path}:")
         yaml_processor.dump(data, sys.stdout)
 
-def setup_logger(name: str = __name__) -> logging.Logger:
+def setup_logger(
+    name:str=__name__
+) -> logging.Logger:
     """
     Setups logger. Debug logging level is set if user eneables via GitHub UI
     """
@@ -162,8 +194,18 @@ def setup_logger(name: str = __name__) -> logging.Logger:
     )
     return logging.getLogger(name)
 
-def log_inputs(release_ver: str, rel_major_minor: str, master_version: str, master_major_minor: str,
-               is_latest_stable_release: str, is_beta_release: str, is_rel_major_minor: str, is_patch: str) -> None:
+import inspect
+
+def log_inputs(
+    release_ver:str="0.0.0",
+    rel_major_minor:str="0.0",
+    master_version:str="0.0.0",
+    master_major_minor:str="0.0",
+    is_latest_stable_release:bool=False,
+    is_beta_release:bool=False,
+    is_rel_major_minor:bool=False,
+    is_patch:bool=False
+) -> None:
     """
     Helper function to log script inputs when debugging
     """
