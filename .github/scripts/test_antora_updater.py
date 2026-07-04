@@ -183,7 +183,6 @@ nav:
         self.assertNotIn("snapshot", release_data["asciidoc"]["attributes"])
         self.assert_untouched_properties(release_data)
 
-
     @patch("antora_utils.print_yaml_content")
     @patch("builtins.open")
     @patch("antora_utils.checkout_branch")
@@ -213,8 +212,8 @@ nav:
         self.assertEqual(beta_data["asciidoc"]["attributes"]["full-version"], "5.8.0-BETA-1")
         self.assertEqual(beta_data["asciidoc"]["attributes"]["os-version"], "5.8.0-SNAPSHOT")
         self.assertEqual(beta_data["asciidoc"]["attributes"]["ee-version"], "5.8.0-BETA-1")
-        self.assertEqual(beta_data["asciidoc"]["attributes"]["minor-version"], "5.8-beta-1")
-        self.assertEqual(beta_data["asciidoc"]["attributes"]["version"], "5.8-beta-1")
+        self.assertEqual(beta_data["asciidoc"]["attributes"]["minor-version"], "5.8-BETA-1")
+        self.assertEqual(beta_data["asciidoc"]["attributes"]["version"], "5.8-BETA-1")
         self.assert_untouched_properties(beta_data)
 
     @patch("antora_utils.print_yaml_content")
