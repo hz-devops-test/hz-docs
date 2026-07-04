@@ -6,7 +6,6 @@ import subprocess
 import inspect
 from datetime import datetime
 from typing import Any, Optional
-from ruamel.yaml import YAML
 
 class AntoraVersions:
     def __init__(self) -> None:
@@ -163,19 +162,6 @@ def merge_github_pr(
         ])
     except Exception as e:
         raise RuntimeError(f"Failed to merge PR #{pr_number}: {e}")
-
-def print_yaml_content(
-    data:Any,
-    yaml_processor:YAML,
-    file_path:str,
-    pipe_logger:logging.Logger
-) -> None:
-    """
-    Debug prints `antora.yml` versions after update
-    """
-    if pipe_logger.isEnabledFor(logging.DEBUG):
-        pipe_logger.debug(f"Updated content of {file_path}:")
-        yaml_processor.dump(data, sys.stdout)
 
 def setup_logger(
     name:str=__name__

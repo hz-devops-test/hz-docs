@@ -129,8 +129,6 @@ def process_antora(
         yaml.dump(data, f)
         f.truncate()
 
-    utils.print_yaml_content(data, yaml, ANTORA_FILE, logger)
-
 def update_release(
     release_ver:str,
     rel_major_minor:str,

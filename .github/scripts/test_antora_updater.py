@@ -117,7 +117,6 @@ nav:
         self.assertEqual(attrs["jet-version"], "4.5.4")
         self.assertTrue(attrs["experimental"])
 
-    @patch("antora_utils.print_yaml_content")
     @patch("builtins.open")
     @patch("antora_utils.checkout_branch")
     @patch("antora_utils.commit_changes")
@@ -153,7 +152,6 @@ nav:
         self.assertNotIn("snapshot", release_data["asciidoc"]["attributes"])
         self.assert_untouched_properties(release_data)
 
-    @patch("antora_utils.print_yaml_content")
     @patch("builtins.open")
     @patch("antora_utils.checkout_branch")
     @patch("antora_utils.commit_changes")
@@ -183,7 +181,6 @@ nav:
         self.assertNotIn("snapshot", release_data["asciidoc"]["attributes"])
         self.assert_untouched_properties(release_data)
 
-    @patch("antora_utils.print_yaml_content")
     @patch("builtins.open")
     @patch("antora_utils.checkout_branch")
     @patch("antora_utils.commit_changes")
@@ -216,7 +213,6 @@ nav:
         self.assertEqual(beta_data["asciidoc"]["attributes"]["version"], "5.8-BETA-1")
         self.assert_untouched_properties(beta_data)
 
-    @patch("antora_utils.print_yaml_content")
     @patch("builtins.open")
     @patch("antora_utils.checkout_branch")
     @patch("antora_utils.commit_changes")
@@ -244,7 +240,6 @@ nav:
         self.assertEqual(patch_data["asciidoc"]["attributes"]["os-version"], "5.8.0")
         self.assert_untouched_properties(patch_data)
 
-    @patch("antora_utils.print_yaml_content")
     @patch("builtins.open")
     @patch("antora_utils.checkout_branch")
     @patch("antora_utils.commit_changes")
