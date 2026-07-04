@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import unittest
 from unittest.mock import patch, MagicMock, call
 import os
@@ -160,16 +161,16 @@ class TestAntoraUtils(unittest.TestCase):
         
         self.assertIn("update_antora Inputs:", logged_msg)
         self.assertIn("---------------------", logged_msg)
-        self.assertIn("release_ver             : 5.8.0", logged_msg)
-        self.assertIn("rel_major_minor         : 5.8", logged_msg)
-        self.assertIn("master_version          : 5.9.0-SNAPSHOT", logged_msg)
-        self.assertIn("master_major_minor      : 5.9", logged_msg)
-        self.assertIn("mc_version              : 5.12.0", logged_msg)
-        self.assertIn("mc_major_minor          : 5.12", logged_msg)
-        self.assertIn("is_beta_release         : false", logged_msg)
-        self.assertIn("is_rel_major_minor      : true", logged_msg)
-        self.assertIn("is_patch                : false", logged_msg)
+        self.assertIn("release_ver:              5.8.0", logged_msg)
+        self.assertIn("rel_major_minor:          5.8", logged_msg)
+        self.assertIn("master_version:           5.9.0-SNAPSHOT", logged_msg)
+        self.assertIn("master_major_minor:       5.9", logged_msg)
+        self.assertIn("mc_version:               5.12.0", logged_msg)
+        self.assertIn("mc_major_minor:           5.12", logged_msg)
+        self.assertIn("is_beta_release:          false", logged_msg)
+        self.assertIn("is_rel_major_minor:       true", logged_msg)
         self.assertIn("is_latest_stable_release: true", logged_msg)
+        self.assertIn("is_patch:                 false", logged_msg)
 
 if __name__ == "__main__":
     unittest.main(testRunner=unittest.TextTestRunner(verbosity=2))
