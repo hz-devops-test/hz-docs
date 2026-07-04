@@ -1,4 +1,4 @@
-name: Promote release
+name: Promote Release
 run-name: ${{ github.workflow }} (`${{ inputs.VERSION }}`@${{ inputs.ENVIRONMENT }})
 
 on:
