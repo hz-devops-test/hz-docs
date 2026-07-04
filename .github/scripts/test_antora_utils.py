@@ -65,7 +65,7 @@ class TestAntoraUtils(unittest.TestCase):
     @patch("antora_utils.git_push_remote")
     @patch("antora_utils.run_command")
     def test_commit_changes(self, mock_run_command: MagicMock, mock_push_remote: MagicMock) -> None:
-        antora_utils.commit_changes("main", "5.8.0", "docs/antora.yml", "update_feature_branch")
+        antora_utils.commit_changes("main", "5.8.0", ["docs/antora.yml"], "update_feature_branch")
         
         expected_calls = [
             call([

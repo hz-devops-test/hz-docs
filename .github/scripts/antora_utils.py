@@ -86,16 +86,15 @@ def git_push_remote(
 def commit_changes(
     base_branch:str,
     version:str,
-    file_path:str,
+    file_paths:list,
     active_branch:str
 ) -> None:
     """
     Adds/commits local changes and remote pushes `base_branch` using `git` cli
     """
     run_command([
-        "git", "add",
-        file_path
-    ])
+        "git", "add"
+    ] + file_paths)
     run_command([
         "git", "commit",
         "--message", f"Update branch {base_branch} to {version}"

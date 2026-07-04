@@ -164,7 +164,7 @@ def update_release(
         is_main=False
     )
     
-    utils.commit_changes(target_base, release_ver, ANTORA_FILE, update_branch)
+    utils.commit_changes(target_base, release_ver, [ANTORA_FILE], update_branch)
     utils.create_github_pr(target_base, update_branch, release_ver)
 
 def update_main(
