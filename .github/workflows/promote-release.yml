@@ -112,7 +112,7 @@ jobs:
               release_version=getenv("RELEASE_VERSION"),
               rel_major_minor=getenv("REL_MAJOR_MINOR"),
               is_beta_release=getenv("IS_BETA_RELEASE"),
-              is_patch=getenv("IS_PATCH_RELEASE")
+              is_patch_release=getenv("IS_PATCH_RELEASE")
           )
         env:
           REL_MAJOR_MINOR: ${{ steps.get-rel-info.outputs.rel-major-minor }}
