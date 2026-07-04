@@ -181,20 +181,19 @@ def setup_logger(
     name:str=__name__
 ) -> logging.Logger:
     """
-    Setups logger. Debug logging level is set if user eneables via GitHub UI
+    Setups logger. Debug logging level is set if user enables via GitHub UI
     """
     if os.environ.get("RUNNER_DEBUG") == "1":
         current_level = logging.DEBUG
     else:
         current_level = logging.INFO
+
     logging.basicConfig(
         level=current_level,
-        format="\033[36m[DEBUG]\033[0m %(message)s",
+        format="\033[36m[%(levelname)s]\033[0m %(message)s",
         handlers=[logging.StreamHandler(sys.stdout)]
     )
     return logging.getLogger(name)
-
-import inspect
 
 def log_inputs(
     release_ver:str="0.0.0",

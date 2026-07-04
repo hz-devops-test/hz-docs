@@ -4,6 +4,7 @@ from unittest.mock import patch, MagicMock, call
 import os
 import json
 import subprocess
+import logging
 
 import antora_utils
 
@@ -140,6 +141,27 @@ class TestAntoraUtils(unittest.TestCase):
             antora_utils.merge_github_pr("main", "5.8.0")
             
         self.assertIn("Conflict: Multiple open PRs found", str(context.exception))
+
+    @patch("logging.basicConfig")
+    def test_setup_logger(self, mock_basic_config) -> None:
+        import importlib
+        import antora_utils
+
+        scenarios = [
+            {"env_val": "0", "expected_level": logging.INFO, "level_name": "INFO"},
+            {"env_val": "1", "expected_level": logging.DEBUG, "level_name": "DEBUG"}
+        ]
+
+        for case in scenarios:
+            with self.subTest(level=case["level_name"]):
+                mock_basic_config.reset_mock()
+
+                with patch.dict(os.environ, {"RUNNER_DEBUG": case["env_val"]}):
+                    importlib.reload(antora_utils)
+                    mock_basic_config.assert_called_once()
+                    kwargs = mock_basic_config.call_args[1]
+                    self.assertEqual(kwargs["level"], case["expected_level"])
+                    self.assertIn("[%(levelname)s]", kwargs["format"])
 
     @patch("logging.Logger.debug")
     def test_log_inputs_formatting(self, mock_debug) -> None:
