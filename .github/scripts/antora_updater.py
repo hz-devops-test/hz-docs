@@ -207,16 +207,6 @@ def update(
     """
     Entry point to update `antora.yml` versions for `main` and `release` branches
     """
-    utils.log_inputs(
-        release_ver,
-        rel_major_minor,
-        master_version,
-        master_major_minor,
-        is_latest_stable_release,
-        is_beta_release,
-        is_rel_major_minor,
-        is_patch_release)
-
     is_patch: bool = is_patch_release == "true"
     is_beta: bool = is_beta_release == "true"
     is_rel_mm: bool = is_rel_major_minor == "true"

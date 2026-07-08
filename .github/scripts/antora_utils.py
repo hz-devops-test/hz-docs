@@ -180,36 +180,6 @@ def setup_logger(
     )
     return logging.getLogger(name)
 
-def log_inputs(
-    release_ver:str="0.0.0",
-    rel_major_minor:str="0.0",
-    master_version:str="0.0.0",
-    master_major_minor:str="0.0",
-    mc_version:str="0.0.0",
-    mc_major_minor:str="0.0",
-    is_latest_stable_release:bool=False,
-    is_beta_release:bool=False,
-    is_rel_major_minor:bool=False,
-    is_patch:bool=False
-) -> None:
-    """
-    Helper function to log script inputs when debugging
-    """
-    logger.debug(inspect.cleandoc(f"""
-        update_antora Inputs:
-        ---------------------
-        release_ver:              {release_ver}
-        rel_major_minor:          {rel_major_minor}
-        master_version:           {master_version}
-        master_major_minor:       {master_major_minor}
-        mc_version:               {mc_version}
-        mc_major_minor:           {mc_major_minor}
-        is_beta_release:          {is_beta_release}
-        is_rel_major_minor:       {is_rel_major_minor}
-        is_latest_stable_release: {is_latest_stable_release}
-        is_patch:                 {is_patch}
-    """))
-
 """
 Logger instance for this module
 """
