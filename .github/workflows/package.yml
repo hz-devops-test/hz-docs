@@ -22,6 +22,7 @@ on:
       distinct_id:
         description: 'Required exclusively for automated execution to track status of workflow execution'
         required: false
+
 jobs:
   prepare:
     runs-on: ubuntu-slim

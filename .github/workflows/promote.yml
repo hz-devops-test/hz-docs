@@ -23,6 +23,7 @@ on:
       distinct_id:
         description: 'Required exclusively for automated execution to track status of workflow execution'
         required: false
+
 jobs:
   prepare:
     # we need to use GH runners for now as there's a GH issue with triggering jobs on ubicloud in a private sandbox fork ff
