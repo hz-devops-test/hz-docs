@@ -191,7 +191,7 @@ def update_main(
         is_main=True
     )
     
-    utils.commit_changes(target_base, master_version, ANTORA_FILE, update_branch)
+    utils.commit_changes(target_base, master_version, [ANTORA_FILE], update_branch)
     utils.create_github_pr(target_base, update_branch, master_version)
 
 def update(
