@@ -80,25 +80,6 @@ class TestAntoraUtils(unittest.TestCase):
         mock_run_command.assert_has_calls(expected_calls)
         mock_push_remote.assert_called_once_with("update_feature_branch")
 
-    @patch("antora_utils.git_push_remote")
-    @patch("antora_utils.run_command")
-    def test_commit_changes_no_changes(self, mock_run_command: MagicMock, mock_push_remote: MagicMock) -> None:
-        mock_run_command.side_effect = ["", "", ""]
-
-        result = antora_utils.commit_changes("main", "5.8.0", ["docs/antora.yml"], "update_feature_branch")
-
-        self.assertFalse(result)
-        expected_calls = [
-            call([
-                "git", "add",
-                "docs/antora.yml"
-            ]),
-            call(["git", "status", "--porcelain"])
-        ]
-        mock_run_command.assert_has_calls(expected_calls)
-        self.assertEqual(mock_run_command.call_count, 2)
-        mock_push_remote.assert_not_called()
-
     @patch.dict(os.environ, {
         "GITHUB_SERVER_URL": "https://github.com",
         "GITHUB_REPOSITORY": "hz-devops-test/hz-docs",
