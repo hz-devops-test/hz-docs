@@ -124,8 +124,9 @@ def create_github_pr(
     ])
 
 def merge_github_pr(
-    base_branch:str,
-    version:str
+    base_branch: str,
+    version: str,
+    fail_on_missing: bool = True
 ) -> None:
     """
     Merges pre-existing `Open` GitHub PR using `gh` cli. It searches for the PR and
@@ -140,18 +141,27 @@ def merge_github_pr(
         "--match", "title", f'"{target_title}"',
         "--json", "number,title"
     ])
+
     try:
         prs = json.loads(pr_list_output)
     except Exception as e:
         raise RuntimeError(f"Failed to parse JSON: {e}")
+
     exact_matches = [pr for pr in prs if pr.get("title") == target_title]
+
     if not exact_matches:
-        raise RuntimeError(f"PR not found: '{target_title}' (Base: {base_branch})")
+        if fail_on_missing:
+            raise RuntimeError(f"PR not found: '{target_title}' (Base: {base_branch})")
+        else:
+            logger.warning(f"PR not found for '{target_title}'. Skipping merge execution safely.")
+            return
     elif len(exact_matches) > 1:
         pr_numbers = [pr["number"] for pr in exact_matches]
         raise RuntimeError(f"Conflict: Multiple open PRs found with title '{target_title}'. PRs: {pr_numbers}")
+
     matching_pr = exact_matches[0]
     pr_number = matching_pr["number"]
+
     try:
         run_command([
             "gh", "pr", "merge", str(pr_number),

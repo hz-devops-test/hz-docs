@@ -64,14 +64,18 @@ class TestAntoraUtils(unittest.TestCase):
 
     @patch("antora_utils.git_push_remote")
     @patch("antora_utils.run_command")
-    def test_commit_changes(self, mock_run_command: MagicMock, mock_push_remote: MagicMock) -> None:
-        antora_utils.commit_changes("main", "5.8.0", ["docs/antora.yml"], "update_feature_branch")
-        
+    def test_commit_changes_success(self, mock_run_command: MagicMock, mock_push_remote: MagicMock) -> None:
+        mock_run_command.side_effect = ["", " M docs/antora.yml\n", ""]
+
+        result = antora_utils.commit_changes("main", "5.8.0", ["docs/antora.yml"], "update_feature_branch")
+
+        self.assertTrue(result)
         expected_calls = [
             call([
                 "git", "add",
                 "docs/antora.yml"
             ]),
+            call(["git", "status", "--porcelain"]),
             call([
                 "git", "commit",
                 "--message", "Update branch main to 5.8.0"
@@ -79,6 +83,25 @@ class TestAntoraUtils(unittest.TestCase):
         ]
         mock_run_command.assert_has_calls(expected_calls)
         mock_push_remote.assert_called_once_with("update_feature_branch")
+
+    @patch("antora_utils.git_push_remote")
+    @patch("antora_utils.run_command")
+    def test_commit_changes_no_changes(self, mock_run_command: MagicMock, mock_push_remote: MagicMock) -> None:
+        mock_run_command.side_effect = ["", "", ""]
+
+        result = antora_utils.commit_changes("main", "5.8.0", ["docs/antora.yml"], "update_feature_branch")
+
+        self.assertFalse(result)
+        expected_calls = [
+            call([
+                "git", "add",
+                "docs/antora.yml"
+            ]),
+            call(["git", "status", "--porcelain"])
+        ]
+        mock_run_command.assert_has_calls(expected_calls)
+        self.assertEqual(mock_run_command.call_count, 2)
+        mock_push_remote.assert_not_called()
 
     @patch.dict(os.environ, {
         "GITHUB_SERVER_URL": "https://github.com",
@@ -128,6 +151,16 @@ class TestAntoraUtils(unittest.TestCase):
             antora_utils.merge_github_pr("main", "5.8.0")
             
         self.assertIn("PR not found", str(context.exception))
+
+    @patch("antora_utils.logger")
+    @patch("antora_utils.run_command")
+    def test_merge_github_pr_not_found_no_fail(self, mock_run_command: MagicMock, mock_logger: MagicMock) -> None:
+        mock_run_command.return_value = json.dumps([])
+
+        antora_utils.merge_github_pr("main", "5.8.0", fail_on_missing=False)
+
+        mock_logger.warning.assert_called_once()
+        self.assertEqual(mock_run_command.call_count, 1)
 
     @patch("antora_utils.run_command")
     def test_merge_github_pr_conflict_multiple(self, mock_run_command: MagicMock) -> None:
