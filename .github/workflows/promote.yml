@@ -71,12 +71,6 @@ jobs:
       - name: Install ruamel.yaml
         run: python3 -m pip install ruamel.yaml packaging
 
-      - name: Configure Git Identity
-        working-directory: ${{ env.RELEASE_VERSION }}
-        run: |
-          git config user.name "${GITHUB_ACTOR}"
-          git config user.email "${GITHUB_ACTOR}@users.noreply.github.com"
-
       - name: Merge Antora Pull Requests
         working-directory: ${{ env.RELEASE_VERSION }}
         shell: python
