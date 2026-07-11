@@ -22,9 +22,7 @@ class AntoraVersions:
 def run_command(
     command:list
 ) -> str:
-    """
-    Runs single command. Emits full command if debug is enabled
-    """
+
     logger.debug(f"Executing command: {' '.join(command)}")
     try:
         result = subprocess.run(command, capture_output=True, text=True, check=True)
@@ -37,18 +35,14 @@ def get_pr_title(
     base_branch:str,
     version:str
 ) -> str:
-    """
-    Returns PR title with base/target branch and version
-    """
+
     return f"Update branch {base_branch} to {version}"
 
 def git_checkout_remote(
     local_branch:str,
     remote_branch:str
 ) -> None:
-    """
-    Performs repo `fetch` and `checkout` using `git` cli
-    """
+
     run_command([
         "git", "fetch",
         "origin", remote_branch
@@ -63,9 +57,7 @@ def checkout_branch(
     prefix:str,
     branch:str
 ) -> str:
-    """
-    Checks out unique PR branch from remote using `git` cli
-    """
+
     timestamp = datetime.now().strftime("%d%m%Y%H%M%S")
     update_branch = f"update_{prefix}_{branch}_{timestamp}"
     git_checkout_remote(update_branch, branch)
@@ -74,9 +66,7 @@ def checkout_branch(
 def git_push_remote(
     branch_name:str
 ) -> None:
-    """
-    Remote pushes supplied branch using `git` cli
-    """
+
     run_command([
         "git", "push",
         "origin",
@@ -89,9 +79,7 @@ def commit_changes(
     file_paths:list,
     active_branch:str
 ) -> None:
-    """
-    Adds/commits local changes and remote pushes `base_branch` using `git` cli
-    """
+
     run_command([
         "git", "add"
     ] + file_paths)
@@ -106,9 +94,7 @@ def create_github_pr(
     head_branch:str,
     version:str
 ) -> None:
-    """
-    Creates GitHub PR using `gh` cli. Adds link to the current build run ID in the PR body
-    """
+
     title = get_pr_title(base_branch, version)
     server_url = os.environ["GITHUB_SERVER_URL"]
     repository = os.environ["GITHUB_REPOSITORY"]
@@ -128,11 +114,7 @@ def merge_github_pr(
     version: str,
     fail_on_missing: bool = True
 ) -> None:
-    """
-    Merges pre-existing `Open` GitHub PR using `gh` cli. It searches for the PR and
-    `squash` merges the PR. It will error out if more than one PR is found (only one is expected
-    for any given release)
-    """
+
     target_title = get_pr_title(base_branch, version)
     pr_list_output = run_command([
         "gh", "search", "prs",
@@ -175,9 +157,7 @@ def merge_github_pr(
 def setup_logger(
     name:str=__name__
 ) -> logging.Logger:
-    """
-    Setups logger. Debug logging level is set if user enables via GitHub UI
-    """
+
     if os.environ.get("RUNNER_DEBUG") == "1":
         current_level = logging.DEBUG
     else:

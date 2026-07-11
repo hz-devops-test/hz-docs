@@ -42,13 +42,11 @@ jobs:
     permissions:
       id-token: write
       contents: write
-    env:
-      RELEASE_VERSION: ${{ inputs.VERSION }}
     steps:
       - name: Checkout `release` branch
         uses: actions/checkout@v7
         with:
-          path: ${{ env.RELEASE_VERSION }}
+          path: ${{ inputs.VERSION }}
 
       - name: Checkout `main` automation scripts
         uses: actions/checkout@v7
@@ -59,7 +57,7 @@ jobs:
         id: get-rel-info
         uses: hazelcast/mono-actions/release-info@DI-719-migrate-antora-1
         with:
-          release-version: ${{ env.RELEASE_VERSION }}
+          release-version: ${{ inputs.VERSION }}
           jfrog-files-repo: ${{ vars.JFROG_PREPROD_FILES_REPO }}
           github-token: ${{ secrets.GH_TOKEN }}
           aws-role-to-assume: ${{ vars.AWS_HAZELCAST_OIDC_GITHUB_ACTIONS_ROLE_ARN }}
@@ -68,14 +66,14 @@ jobs:
         run: python3 -m pip install ruamel.yaml packaging
 
       - name: Configure git
-        working-directory: ${{ env.RELEASE_VERSION }}
+        working-directory: ${{ inputs.VERSION }}
         run: |
           git config user.name "${GITHUB_ACTOR}"
           git config user.email "${GITHUB_ACTOR}@users.noreply.github.com"
 
       - name: Update antora.yml with Pull Requests
         shell: python
-        working-directory: ${{ env.RELEASE_VERSION }}
+        working-directory: ${{ inputs.VERSION }}
         run: |
           from os import getenv
           import antora_updater as antora
@@ -91,6 +89,7 @@ jobs:
               is_patch_release=getenv("IS_PATCH_RELEASE")
           )
         env:
+          RELEASE_VERSION: ${{ inputs.VERSION }}
           REL_MAJOR_MINOR: ${{ steps.get-rel-info.outputs.rel-major-minor }}
           MASTER_VERSION: ${{ steps.get-rel-info.outputs.master-version }}
           MASTER_MAJOR_MINOR: ${{ steps.get-rel-info.outputs.master-major-minor }}

@@ -270,7 +270,6 @@ nav:
     @patch("antora_utils.merge_github_pr")
     def test_merge_pull_requests_major_minor(self, mock_merge) -> None:
         antora.merge_pull_requests(
-            is_beta_release="false",
             is_rel_major_minor="true",
             is_patch_release="false",
             release_version="5.8.0",
@@ -285,7 +284,6 @@ nav:
     @patch("antora_utils.merge_github_pr")
     def test_merge_pull_requests_beta(self, mock_merge) -> None:
         antora.merge_pull_requests(
-            is_beta_release="true",
             is_rel_major_minor="false", 
             is_patch_release="false",
             release_version="5.8.0-BETA-1",
@@ -297,7 +295,6 @@ nav:
     @patch("antora_utils.merge_github_pr")
     def test_merge_pull_requests_patch(self, mock_merge) -> None:
         antora.merge_pull_requests(
-            is_beta_release="false",
             is_rel_major_minor="false",
             is_patch_release="true",
             release_version="5.8.1",

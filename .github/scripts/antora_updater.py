@@ -10,10 +10,7 @@ ANTORA_FILE: str = "docs/antora.yml"
 logger: logging.Logger = utils.setup_logger(__name__)
 
 def get_beta_suffix(version: str) -> str:
-    """
-    Returns the BETA version from release version. E.g. returns `2` when
-    version is `5.8.0-BETA-2`
-    """
+
     parsed = parse(version)
     if parsed.pre and parsed.pre[0] == 'b':
         return f"BETA-{parsed.pre[1]}"
@@ -28,10 +25,7 @@ def resolve_versions(
     is_main:bool,
     data:Any
 ) -> utils.AntoraVersions:
-    """
-    Resolves the various versions to set in `antora.yml` in a single place via `AntoraVersions`
-    class
-    """
+
     antora_versions = utils.AntoraVersions()
     attrs = data['asciidoc']['attributes']
 
@@ -84,13 +78,10 @@ def process_antora(
     is_rel_major_minor:bool,
     is_main:bool
 ) -> None:
-    """
-    Resolves version via `resolve_versions()` and writes the updated versions directly
-    to `docs/antora.yml`
-    """
+
     yaml: YAML = YAML()
     yaml.preserve_quotes = True
-    yaml.indent(mapping=2, sequence=4, offset=2) # required for '- ...' block
+    yaml.indent(mapping=2, sequence=4, offset=2)
     yaml.width = 4096
     
     with open(ANTORA_FILE, 'r+') as f:
@@ -137,12 +128,6 @@ def update_release(
     is_rel_major_minor:bool,
     is_patch_release:bool
 ) -> None:
-    """
-    Handles `antora.yml` version updates for release branches (BETA and PATCH)
-        1. checkouts new unique PR branch
-        2. updates versions, commits and pushes changes to remote
-        3. finally, creates PR
-    """
 
     # For PATCH release, checkout v/branch directly. When release is MAJOR/MINOR or BETA,
     # use release branch instead, and v/branch is created from release branch during `promote`
@@ -173,12 +158,7 @@ def update_main(
     master_major_minor:str,
     is_rel_major_minor:bool
 ) -> None:
-    """
-    Handles `antora.yml` version updates for `main` branch (i.e. MAJOR.MINOR release)
-        1. checkouts new unique PR branch
-        2. updates versions, commits and pushes changes to remote
-        3. finally, creates PR
-    """
+
     target_base: str = "main"
     update_branch: str = utils.checkout_branch("antora", target_base)
     
@@ -204,9 +184,7 @@ def update(
     is_rel_major_minor:str,
     is_patch_release:str
 ) -> None:
-    """
-    Entry point to update `antora.yml` versions for `main` and `release` branches
-    """
+
     is_patch: bool = is_patch_release == "true"
     is_beta: bool = is_beta_release == "true"
     is_rel_mm: bool = is_rel_major_minor == "true"
@@ -230,16 +208,13 @@ def update(
     )
 
 def merge_pull_requests(
-    is_beta_release:str,
     is_rel_major_minor:str,
     is_patch_release:str,
     release_version:str,
     master_version:str,
     rel_major_minor:str
 ) -> None:
-    """
-    Merges `main` and `release` PRs
-    """
+
     is_maj_min: bool = is_rel_major_minor == "true"
     is_patch: bool = is_patch_release == "true"
 
@@ -259,15 +234,11 @@ def create_v_branch(
     is_beta_release:str,
     is_patch_release:str
 ) -> None:
-    """
-    Creates `v/branch` from release branch (e.g. `5.8.0` -> `v/5.8` or `5.8.0-BETA-1` -> `5.8-BETA-1`)
-    Once v/branch is created, it automatically appears in docs website. The `release` branch manually delete
-    during post-release tasks
-    """
+
     is_patch: bool = is_patch_release == "true"
     is_beta: bool = is_beta_release == "true"
 
-    # Patch v/branch should already exist so skip
+    # Patch `v/branch` should already exist so skip
     if is_patch:
         return
 

@@ -79,7 +79,6 @@ jobs:
           import antora_updater as updater
 
           updater.merge_pull_requests(
-              is_beta_release=getenv("IS_BETA_RELEASE"),
               is_rel_major_minor=getenv("IS_REL_MAJOR_MINOR"),
               release_version=getenv("RELEASE_VERSION"),
               master_version=getenv("MASTER_VERSION"),
@@ -90,7 +89,6 @@ jobs:
           MASTER_VERSION: ${{ steps.get-rel-info.outputs.master-version }}
           REL_MAJOR_MINOR: ${{ steps.get-rel-info.outputs.rel-major-minor }}
           IS_REL_MAJOR_MINOR: ${{ steps.get-rel-info.outputs.is-rel-major-minor }}
-          IS_BETA_RELEASE: ${{ steps.get-rel-info.outputs.is-beta-release }}
           IS_PATCH_RELEASE: ${{ steps.get-rel-info.outputs.is-patch-release }}
           PYTHONPATH: ${{ github.workspace }}/src-scripts/.github/scripts
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
