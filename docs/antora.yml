@@ -8,9 +8,9 @@ display_version: '5.8'
 asciidoc:
   attributes:
     # The full major.minor.patch version, which is used as a variable in the docs for things like download links
-    full-version: '5.8.1'
+    full-version: '5.8.2'
     os-version: '5.8.0'
-    ee-version: '5.8.1'
+    ee-version: '5.8.2'
     hz-repo-swagger-branch: 'master'
     jet-version: '4.5.4'
     # The minor.patch version, which is used as a variable in the docs for things like file versions
