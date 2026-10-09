@@ -8,9 +8,9 @@ display_version: '5.5'
 asciidoc:
   attributes:
     # The full major.minor.patch version, which is used as a variable in the docs for things like download links
-    full-version: '5.5.10'
+    full-version: '5.5.22'
     os-version: '5.5.0'
-    ee-version: '5.5.10'
+    ee-version: '5.5.22'
     hz-repo-swagger-branch: '5.5.z'
     jet-version: '4.5.4'
     # The minor.patch version, which is used as a variable in the docs for things like file versions
@@ -25,7 +25,7 @@ asciidoc:
     page-latest-cli: '5.2021.09'
     # Must be lowercase because this is how the version appears in the docs
     page-latest-supported-mc: '5.9'
-    page-latest-supported-po: '5.16'       
+    page-latest-supported-po: '5.16'
     page-latest-supported-java-client-new: '5.5.0-BETA'
     # https://github.com/hazelcast/hazelcast-go-client/releases
     page-latest-supported-go-client: '1.4.2'
@@ -43,7 +43,7 @@ asciidoc:
     enterprise-product-name: 'Enterprise Edition'
     java-client-new: 'Java Client (Standalone)'
     java-client: 'Java Client and Embedded Server'
-    url-cloud-signup: https://cloud.hazelcast.com/sign-up 
+    url-cloud-signup: https://cloud.hazelcast.com/sign-up
     hazelcast-cloud: Cloud
     ucn: User Code Namespaces
     ucd: User Code Deployment
